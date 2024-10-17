@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/venuehub-api/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/venuehub-api/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/venuehub-api",
+  "projects": {
+    "venuehub-api": {
+      "type": "application",
+      "root": "apps/venuehub-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/venuehub-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/venuehub-api/tsconfig.app.json"
+      }
+    },
+    "venuehub-batch": {
+      "type": "application",
+      "root": "apps/venuehub-batch",
+      "entryFile": "main",
+      "sourceRoot": "apps/venuehub-batch/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/venuehub-batch/tsconfig.app.json"
+      }
+    }
+  }
+}
