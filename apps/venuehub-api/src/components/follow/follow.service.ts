@@ -9,15 +9,20 @@ import {
 } from '../../libs/config';
 import { Follower, Followers, Following, Followings } from '../../libs/dto/follow/follow';
 import { FollowInquiry } from '../../libs/dto/follow/follow.input';
+import { Member } from '../../libs/dto/member/member';
+import { NotificationInput } from '../../libs/dto/notification/notification.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
+import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { T } from '../../libs/types/common';
 import { MemberService } from '../member/member.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class FollowService {
 	constructor(
 		@InjectModel('Follow') private readonly followModel: Model<Follower | Following>,
 		private readonly memberService: MemberService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	public async subscribe(followerId: ObjectId, followingId: ObjectId): Promise<Follower> {
@@ -33,7 +38,23 @@ export class FollowService {
 		await this.memberService.memberStatsEditor({ _id: followerId, targetKey: 'memberFollowings', modifier: 1 });
 		await this.memberService.memberStatsEditor({ _id: followingId, targetKey: 'memberFollowers', modifier: 1 });
 
+		const notificationInput = this.createNotificationInput(followingId, followerId);
+
+		await this.notificationService.createNotification(await notificationInput);
+
 		return result;
+	}
+
+	private async createNotificationInput(receiverId: ObjectId, authorId: ObjectId): Promise<NotificationInput> {
+		const member: Member = await this.memberService.getMemberIdOfMember(authorId);
+		return {
+			notificationType: NotificationType.FOLLOW,
+			notificationGroup: NotificationGroup.MEMBER,
+			notificationTitle: `${member.memberNick} started following you`,
+			authorId: authorId,
+			receiverId,
+			notificationDesc: 'Check your new  follower.',
+		};
 	}
 
 	private async registerSubscription(followerId: ObjectId, followingId: ObjectId): Promise<Follower> {

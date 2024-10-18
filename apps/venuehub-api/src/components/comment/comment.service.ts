@@ -55,6 +55,7 @@ export class CommentService {
 						receiverProperty.memberId,
 						receiverProperty._id,
 						undefined,
+						NotificationGroup.PROPERTY,
 					);
 					await this.notificationService.createNotification(await notificationInput);
 				}
@@ -74,6 +75,7 @@ export class CommentService {
 						receiverArticle.memberId,
 						undefined,
 						input.commentRefId,
+						NotificationGroup.ARTICLE,
 					);
 					await this.notificationService.createNotification(await notificationInput);
 				}
@@ -88,7 +90,13 @@ export class CommentService {
 
 				const receiverMember: Member = await this.memberService.getMemberIdOfMember(input.commentRefId);
 				if (receiverMember) {
-					const notificationInput = this.createNotificationInput(input, receiverMember._id, undefined, undefined);
+					const notificationInput = this.createNotificationInput(
+						input,
+						receiverMember._id,
+						undefined,
+						undefined,
+						NotificationGroup.MEMBER,
+					);
 					await this.notificationService.createNotification(await notificationInput);
 				}
 				break;
@@ -106,11 +114,12 @@ export class CommentService {
 		receiverId: ObjectId,
 		receiverPropertyId?: ObjectId,
 		articleId?: ObjectId,
+		notificationGroup?: NotificationGroup,
 	): Promise<NotificationInput> {
 		const member: Member = await this.memberService.getMemberIdOfMember(input.memberId);
 		return {
 			notificationType: NotificationType.COMMENT,
-			notificationGroup: NotificationGroup.COMMENT,
+			notificationGroup,
 			notificationTitle: `${member.memberNick} commented: ${input.commentContent}!`,
 			authorId: input.memberId,
 			receiverId,

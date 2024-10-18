@@ -16,6 +16,8 @@ export class NotificationService {
 		input.authorId = shapeIntoMongoObjectId(input.authorId);
 		input.receiverId = shapeIntoMongoObjectId(input.receiverId);
 
+		console.log('NOTIFICATION SENT!');
+
 		return await this.notificationModel.create(input);
 	}
 
