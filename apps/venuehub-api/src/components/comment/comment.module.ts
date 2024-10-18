@@ -4,6 +4,7 @@ import CommentSchema from '../../schemas/Comment.model';
 import { AuthModule } from '../auth/auth.module';
 import { BoardArticleModule } from '../board-article/board-article.module';
 import { MemberModule } from '../member/member.module';
+import { NotificationModule } from '../notification/notification.module';
 import { PropertyModule } from '../property/property.module';
 import { CommentResolver } from './comment.resolver';
 import { CommentService } from './comment.service';
@@ -15,6 +16,7 @@ import { CommentService } from './comment.service';
 		MemberModule,
 		PropertyModule,
 		BoardArticleModule,
+		NotificationModule,
 	],
 	providers: [CommentResolver, CommentService],
 	exports: [CommentService],

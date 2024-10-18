@@ -17,7 +17,9 @@ registerEnumType(NotificationStatus, {
 });
 
 export enum NotificationGroup {
-	MEMBER = 'MEMBER',
+	COMMENT = 'COMMENT',
+	FOLLOW = 'FOLLOW',
+	LIKE = 'LIKE',
 	ARTICLE = 'ARTICLE',
 	PROPERTY = 'PROPERTY',
 }

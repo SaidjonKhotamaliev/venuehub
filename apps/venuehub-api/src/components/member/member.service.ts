@@ -179,4 +179,8 @@ export class MemberService {
 		const { _id, targetKey, modifier } = input;
 		return await this.memberModel.findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true }).exec();
 	}
+
+	public async getMemberIdOfMember(input: ObjectId): Promise<Member> {
+		return await this.memberModel.findById(input);
+	}
 }

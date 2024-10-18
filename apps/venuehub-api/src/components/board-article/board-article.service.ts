@@ -211,4 +211,8 @@ export class BoardArticleService {
 			.findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true })
 			.exec();
 	}
+
+	public async getMemberIdOfArticle(input: ObjectId): Promise<BoardArticle> {
+		return await this.boardArticleModel.findById(input);
+	}
 }
