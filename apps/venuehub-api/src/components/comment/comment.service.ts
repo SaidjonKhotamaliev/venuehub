@@ -124,8 +124,8 @@ export class CommentService {
 			authorId: input.memberId,
 			receiverId,
 			notificationDesc: 'Check out the new comment.',
-			propertyId: receiverPropertyId, // Optional, if associated with a property
-			articleId, // Optional, if associated with an article
+			propertyId: receiverPropertyId,
+			articleId,
 		};
 	}
 

@@ -22,6 +22,10 @@ import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { Member } from '../../libs/dto/member/member';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationInput } from '../../libs/dto/notification/notification.input';
+import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
+import { FollowService } from '../follow/follow.service';
 
 @Injectable()
 export class PropertyService {
@@ -29,7 +33,9 @@ export class PropertyService {
 		@InjectModel('Property') private readonly propertyModel: Model<Property>,
 		private readonly memberService: MemberService,
 		private readonly viewService: ViewService,
+		private readonly followService: FollowService,
 		private readonly likeService: LikeService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	public async createProperty(input: PropertyInput): Promise<Property> {
@@ -40,11 +46,55 @@ export class PropertyService {
 				targetKey: 'memberProperties',
 				modifier: 1,
 			});
+
+			const { list: followers } = await this.followService.getMemberFollowers(input.memberId, {
+				page: 1,
+				limit: Number.MAX_SAFE_INTEGER,
+				search: { followingId: input.memberId },
+			});
+
+			// Step 3: Check if any followers exist
+			if (!followers || followers.length === 0) {
+				console.log('No followers found for this agent.');
+				return result;
+			}
+
+			// Step 4: Loop through each follower and create a notification
+			for (const follower of followers) {
+				const notificationInput = this.createNotificationInput(
+					input.memberId, // The ID of the agent
+					follower._id, // The follower's ID
+					result._id, // The property ID (optional if you want to reference the created property)
+				);
+
+				console.log(follower.followerId);
+
+				// Call the create notification method
+				await this.notificationService.createNotification(await notificationInput);
+			}
+
 			return result;
 		} catch (err) {
 			console.log('Error, Service model: ', err.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
+	}
+
+	private async createNotificationInput(
+		authorId: ObjectId,
+		receiverId: ObjectId,
+		receiverPropertyId: ObjectId,
+	): Promise<NotificationInput> {
+		const member: Member = await this.memberService.getMemberIdOfMember(authorId);
+		return {
+			notificationType: NotificationType.CREATE,
+			notificationGroup: NotificationGroup.PROPERTY,
+			notificationTitle: `${member.memberNick} created a new property!`,
+			authorId: authorId,
+			receiverId,
+			notificationDesc: 'Check the new property.',
+			propertyId: receiverPropertyId,
+		};
 	}
 
 	public async getProperty(memberId: ObjectId, propertyId: ObjectId): Promise<Property> {
