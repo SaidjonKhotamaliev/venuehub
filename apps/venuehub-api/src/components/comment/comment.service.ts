@@ -111,7 +111,7 @@ export class CommentService {
 		return {
 			notificationType: NotificationType.COMMENT,
 			notificationGroup: NotificationGroup.COMMENT,
-			notificationTitle: `${member.memberNick} commented on your post!`,
+			notificationTitle: `${member.memberNick} commented: ${input.commentContent}!`,
 			authorId: input.memberId,
 			receiverId,
 			notificationDesc: 'Check out the new comment.',
