@@ -53,23 +53,16 @@ export class PropertyService {
 				search: { followingId: input.memberId },
 			});
 
-			// Step 3: Check if any followers exist
 			if (!followers || followers.length === 0) {
 				console.log('No followers found for this agent.');
 				return result;
 			}
 
-			// Step 4: Loop through each follower and create a notification
 			for (const follower of followers) {
-				const notificationInput = this.createNotificationInput(
-					input.memberId, // The ID of the agent
-					follower._id, // The follower's ID
-					result._id, // The property ID (optional if you want to reference the created property)
-				);
+				const notificationInput = this.createNotificationInputForFollow(input.memberId, follower._id, result._id);
 
 				console.log(follower.followerId);
 
-				// Call the create notification method
 				await this.notificationService.createNotification(await notificationInput);
 			}
 
@@ -80,7 +73,7 @@ export class PropertyService {
 		}
 	}
 
-	private async createNotificationInput(
+	private async createNotificationInputForFollow(
 		authorId: ObjectId,
 		receiverId: ObjectId,
 		receiverPropertyId: ObjectId,
@@ -268,7 +261,34 @@ export class PropertyService {
 
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 
+		if (modifier === 1) {
+			const notificationInput = this.createNotificationInputForLike(
+				target,
+				NotificationGroup.PROPERTY,
+				memberId,
+				target.memberId,
+			);
+			await this.notificationService.createNotification(await notificationInput);
+		}
+
 		return result;
+	}
+
+	private async createNotificationInputForLike(
+		receiverProperty?: Property,
+		notificationGroup?: NotificationGroup,
+		authorId?: ObjectId,
+		receiverId?: ObjectId,
+	): Promise<NotificationInput> {
+		const member: Member = await this.memberService.getMemberIdOfMember(authorId);
+		return {
+			notificationType: NotificationType.LIKE,
+			receiverId,
+			notificationGroup,
+			notificationTitle: `${member.memberNick} liked your ${receiverProperty.propertyTitle} property!`,
+			authorId,
+			notificationDesc: 'Check out the new like.',
+		};
 	}
 
 	// ADMIN

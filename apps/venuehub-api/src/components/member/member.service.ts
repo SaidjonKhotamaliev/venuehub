@@ -7,14 +7,17 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { Member, Members } from '../../libs/dto/member/member';
 import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry } from '../../libs/dto/member/member.input';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
+import { NotificationInput } from '../../libs/dto/notification/notification.input';
 import { ViewInput } from '../../libs/dto/view/view.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
+import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { AuthService } from '../auth/auth.service';
 import { LikeService } from '../like/like.service';
+import { NotificationService } from '../notification/notification.service';
 import { ViewService } from '../view/view.service';
 
 @Injectable()
@@ -25,6 +28,7 @@ export class MemberService {
 		private authService: AuthService,
 		private viewService: ViewService,
 		private likeService: LikeService,
+		private notificationService: NotificationService,
 	) {}
 
 	public async signup(input: MemberInput): Promise<Member> {
@@ -140,7 +144,28 @@ export class MemberService {
 
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 
+		if (modifier === 1) {
+			const notificationInput = this.createNotificationInput(target._id, NotificationGroup.MEMBER, memberId);
+			await this.notificationService.createNotification(await notificationInput);
+		}
+
 		return result;
+	}
+
+	private async createNotificationInput(
+		receiverId: ObjectId,
+		notificationGroup?: NotificationGroup,
+		authorId?: ObjectId,
+	): Promise<NotificationInput> {
+		const member: Member = await this.getMemberIdOfMember(authorId);
+		return {
+			notificationType: NotificationType.LIKE,
+			receiverId,
+			notificationGroup,
+			notificationTitle: `${member.memberNick} liked you!`,
+			authorId,
+			notificationDesc: 'Check out the new like.',
+		};
 	}
 
 	public async getAllMembersByAdmin(input: MembersInquiry): Promise<Members> {

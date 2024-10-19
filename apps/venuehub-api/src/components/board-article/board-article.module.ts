@@ -4,6 +4,7 @@ import BoardArticleSchema from '../../schemas/BoardArticle.model';
 import { AuthModule } from '../auth/auth.module';
 import { LikeModule } from '../like/like.module';
 import { MemberModule } from '../member/member.module';
+import { NotificationModule } from '../notification/notification.module';
 import { ViewModule } from '../view/view.module';
 import { BoardArticleResolver } from './board-article.resolver';
 import { BoardArticleService } from './board-article.service';
@@ -15,6 +16,7 @@ import { BoardArticleService } from './board-article.service';
 		MemberModule,
 		ViewModule,
 		LikeModule,
+		NotificationModule,
 	],
 
 	providers: [BoardArticleResolver, BoardArticleService],

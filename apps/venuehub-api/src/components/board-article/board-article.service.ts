@@ -6,13 +6,17 @@ import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-
 import { BoardArticleInput, BoardArticlesInquiry } from '../../libs/dto/board-article/board-article.input';
 import { BoardArticleUpdate } from '../../libs/dto/board-article/board-article.update';
 import { LikeInput } from '../../libs/dto/like/like.input';
+import { Member } from '../../libs/dto/member/member';
+import { NotificationInput } from '../../libs/dto/notification/notification.input';
 import { BoardArticleStatus } from '../../libs/enums/board-article.enum';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';
+import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { LikeService } from '../like/like.service';
 import { MemberService } from '../member/member.service';
+import { NotificationService } from '../notification/notification.service';
 import { ViewService } from '../view/view.service';
 
 @Injectable()
@@ -22,6 +26,7 @@ export class BoardArticleService {
 		private readonly memberService: MemberService,
 		private readonly viewService: ViewService,
 		private readonly likeService: LikeService,
+		private readonly notificationService: NotificationService,
 	) {}
 
 	public async createBoardArticle(memberId: ObjectId, input: BoardArticleInput): Promise<BoardArticle> {
@@ -139,7 +144,34 @@ export class BoardArticleService {
 
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 
+		if (modifier === 1) {
+			const notificationInput = this.createNotificationInputForLike(
+				target,
+				NotificationGroup.ARTICLE,
+				memberId,
+				target.memberId,
+			);
+			await this.notificationService.createNotification(await notificationInput);
+		}
+
 		return result;
+	}
+
+	private async createNotificationInputForLike(
+		receiverArticle?: BoardArticle,
+		notificationGroup?: NotificationGroup,
+		authorId?: ObjectId,
+		receiverId?: ObjectId,
+	): Promise<NotificationInput> {
+		const member: Member = await this.memberService.getMemberIdOfMember(authorId);
+		return {
+			notificationType: NotificationType.LIKE,
+			receiverId,
+			notificationGroup,
+			notificationTitle: `${member.memberNick} liked your ${receiverArticle.articleTitle} board article!`,
+			authorId,
+			notificationDesc: 'Check out the new like.',
+		};
 	}
 
 	// ADMIN
