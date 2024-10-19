@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import BoardArticleSchema from '../../schemas/BoardArticle.model';
 import { AuthModule } from '../auth/auth.module';
+import { FollowModule } from '../follow/follow.module';
 import { LikeModule } from '../like/like.module';
 import { MemberModule } from '../member/member.module';
 import { NotificationModule } from '../notification/notification.module';
@@ -16,6 +17,7 @@ import { BoardArticleService } from './board-article.service';
 		MemberModule,
 		ViewModule,
 		LikeModule,
+		FollowModule,
 		NotificationModule,
 	],
 

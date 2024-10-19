@@ -14,6 +14,7 @@ import { LikeGroup } from '../../libs/enums/like.enum';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
+import { FollowService } from '../follow/follow.service';
 import { LikeService } from '../like/like.service';
 import { MemberService } from '../member/member.service';
 import { NotificationService } from '../notification/notification.service';
@@ -26,6 +27,7 @@ export class BoardArticleService {
 		private readonly memberService: MemberService,
 		private readonly viewService: ViewService,
 		private readonly likeService: LikeService,
+		private readonly followService: FollowService,
 		private readonly notificationService: NotificationService,
 	) {}
 
@@ -38,11 +40,47 @@ export class BoardArticleService {
 				targetKey: 'memberArticles',
 				modifier: 1,
 			});
+
+			const { list: followers } = await this.followService.getMemberFollowers(input.memberId, {
+				page: 1,
+				limit: Number.MAX_SAFE_INTEGER,
+				search: { followingId: input.memberId },
+			});
+
+			if (!followers || followers.length === 0) {
+				console.log('No followers found for this agent.');
+				return result;
+			}
+
+			for (const follower of followers) {
+				const notificationInput = this.createNotificationInputForCreate(input.memberId, follower._id, result);
+
+				console.log(follower.followerId);
+
+				await this.notificationService.createNotification(await notificationInput);
+			}
+
 			return result;
 		} catch (err) {
 			console.log('Error, Service model: ', err.message);
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
+	}
+
+	private async createNotificationInputForCreate(
+		authorId: ObjectId,
+		receiverId: ObjectId,
+		receiverArticle: BoardArticle,
+	): Promise<NotificationInput> {
+		const member: Member = await this.memberService.getMemberIdOfMember(authorId);
+		return {
+			notificationType: NotificationType.CREATE,
+			notificationGroup: NotificationGroup.PROPERTY,
+			notificationTitle: `${member.memberNick} created a new article: ${receiverArticle.articleTitle}`,
+			authorId: authorId,
+			receiverId,
+			notificationDesc: 'Check the new article.',
+		};
 	}
 
 	public async getBoardArticle(memberId: ObjectId, articleId: ObjectId): Promise<BoardArticle> {

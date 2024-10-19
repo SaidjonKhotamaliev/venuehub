@@ -59,7 +59,7 @@ export class PropertyService {
 			}
 
 			for (const follower of followers) {
-				const notificationInput = this.createNotificationInputForFollow(input.memberId, follower._id, result._id);
+				const notificationInput = this.createNotificationInputForCreate(input.memberId, follower._id, result);
 
 				console.log(follower.followerId);
 
@@ -73,20 +73,19 @@ export class PropertyService {
 		}
 	}
 
-	private async createNotificationInputForFollow(
+	private async createNotificationInputForCreate(
 		authorId: ObjectId,
 		receiverId: ObjectId,
-		receiverPropertyId: ObjectId,
+		receiverProperty: Property,
 	): Promise<NotificationInput> {
 		const member: Member = await this.memberService.getMemberIdOfMember(authorId);
 		return {
 			notificationType: NotificationType.CREATE,
 			notificationGroup: NotificationGroup.PROPERTY,
-			notificationTitle: `${member.memberNick} created a new property!`,
+			notificationTitle: `${member.memberNick} created a new property:  ${receiverProperty.propertyTitle}`,
 			authorId: authorId,
 			receiverId,
 			notificationDesc: 'Check the new property.',
-			propertyId: receiverPropertyId,
 		};
 	}
 
