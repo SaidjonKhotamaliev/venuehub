@@ -27,7 +27,7 @@ export class PropertyInput {
 
 	@IsNotEmpty()
 	@Field(() => Number)
-	propertyPrice: number;
+	propertyRentPrice: number;
 
 	@IsNotEmpty()
 	@Field(() => Number)
@@ -40,12 +40,6 @@ export class PropertyInput {
 	propertyBeds: number;
 
 	@IsNotEmpty()
-	@IsInt()
-	@Min(1)
-	@Field(() => Int)
-	propertyRooms: number;
-
-	@IsNotEmpty()
 	@Field(() => [String])
 	propertyImages: string[];
 
@@ -53,14 +47,6 @@ export class PropertyInput {
 	@Length(5, 500)
 	@Field(() => String, { nullable: true })
 	propertyDesc?: string;
-
-	@IsOptional()
-	@Field(() => Boolean, { nullable: true })
-	propertyBarter?: boolean;
-
-	@IsOptional()
-	@Field(() => Boolean, { nullable: true })
-	propertyRent?: boolean;
 
 	memberId?: ObjectId;
 
