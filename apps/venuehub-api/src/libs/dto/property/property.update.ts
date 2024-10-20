@@ -34,7 +34,7 @@ export class PropertyUpdate {
 
 	@IsOptional()
 	@Field(() => Number, { nullable: true })
-	propertyPrice?: number;
+	propertyRentPrice?: number;
 
 	@IsOptional()
 	@Field(() => Number, { nullable: true })

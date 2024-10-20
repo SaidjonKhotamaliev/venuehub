@@ -17,7 +17,7 @@ registerEnumType(PropertyType, {
 
 export enum PropertyStatus {
 	ACTIVE = 'ACTIVE',
-	RENTED = 'RENTED',
+	RENT = 'RENT',
 	DELETE = 'DELETE',
 }
 registerEnumType(PropertyStatus, {

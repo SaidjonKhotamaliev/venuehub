@@ -31,22 +31,12 @@ const PropertySchema = new Schema(
 			required: true,
 		},
 
-		propertyPrice: {
+		propertyRentPrice: {
 			type: Number,
 			required: true,
 		},
 
 		propertySquare: {
-			type: Number,
-			required: true,
-		},
-
-		propertyBeds: {
-			type: Number,
-			required: true,
-		},
-
-		propertyRooms: {
 			type: Number,
 			required: true,
 		},
@@ -80,23 +70,13 @@ const PropertySchema = new Schema(
 			type: String,
 		},
 
-		propertyBarter: {
-			type: Boolean,
-			default: false,
-		},
-
-		propertyRent: {
-			type: Boolean,
-			default: false,
-		},
-
 		memberId: {
 			type: Schema.Types.ObjectId,
 			required: true,
 			ref: 'Member',
 		},
 
-		soldAt: {
+		rentedAt: {
 			type: Date,
 		},
 
@@ -111,6 +91,9 @@ const PropertySchema = new Schema(
 	{ timestamps: true, collection: 'properties' },
 );
 
-PropertySchema.index({ propertyType: 1, propertyLocation: 1, propertyTitle: 1, propertyPrice: 1 }, { unique: true });
+PropertySchema.index(
+	{ propertyType: 1, propertyLocation: 1, propertyTitle: 1, propertyRentPrice: 1 },
+	{ unique: true },
+);
 
 export default PropertySchema;

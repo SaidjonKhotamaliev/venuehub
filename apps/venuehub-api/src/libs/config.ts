@@ -10,7 +10,7 @@ export const availablePropertySorts = [
 	'propertyLikes',
 	'propertyViews',
 	'propertyRank',
-	'propertyPrice',
+	'propertyRentPrice',
 ];
 export const availableCommentSorts = ['createdAt', 'updatedAt'];
 
