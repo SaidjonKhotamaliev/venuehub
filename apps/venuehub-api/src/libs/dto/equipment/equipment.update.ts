@@ -1,60 +1,44 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
 import { ObjectId } from 'mongoose';
+import { EquipmentCondition, EquipmentStatus, EquipmentType } from '../../enums/equipment.enum';
 import { PropertyLocation, PropertyStatus, PropertyType } from '../../enums/property.enum';
 
 @InputType()
-export class PropertyUpdate {
+export class EquipmentUpdate {
 	@IsNotEmpty()
 	@Field(() => String)
 	_id: ObjectId;
 
 	@IsOptional()
-	@Field(() => PropertyType, { nullable: true })
-	propertyType?: PropertyType;
+	@Field(() => EquipmentType, { nullable: true })
+	equipmentType?: EquipmentType;
 
 	@IsOptional()
-	@Field(() => PropertyStatus, { nullable: true })
-	propertyStatus?: PropertyStatus;
+	@Field(() => EquipmentStatus, { nullable: true })
+	equipmentStatus?: EquipmentStatus;
 
 	@IsOptional()
-	@Field(() => PropertyLocation, { nullable: true })
-	propertyLocation?: PropertyLocation;
-
-	@IsOptional()
-	@Length(3, 100)
-	@Field(() => String, { nullable: true })
-	propertyAddress?: string;
+	@Field(() => EquipmentCondition)
+	equipmentCondition: EquipmentCondition;
 
 	@IsOptional()
 	@Length(3, 100)
 	@Field(() => String, { nullable: true })
-	propertyTitle?: string;
+	euqipmentTitle?: string;
 
 	@IsOptional()
 	@Field(() => Number, { nullable: true })
-	propertyRentPrice?: number;
-
-	@IsOptional()
-	@Field(() => Number, { nullable: true })
-	propertySquare?: number;
+	equipmentRentPrice?: number;
 
 	@IsOptional()
 	@Field(() => [String], { nullable: true })
-	propertyImages?: string[];
+	equipmentImages?: string[];
 
 	@IsOptional()
 	@Length(5, 500)
 	@Field(() => String, { nullable: true })
-	propertyDesc?: string;
-
-	@IsOptional()
-	@Field(() => Boolean, { nullable: true })
-	propertyBarter?: boolean;
-
-	@IsOptional()
-	@Field(() => Boolean, { nullable: true })
-	propertyRent?: boolean;
+	equipmentDesc?: string;
 
 	rentedAt?: Date;
 

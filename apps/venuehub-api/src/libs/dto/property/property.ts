@@ -48,9 +48,6 @@ export class Property {
 	@Field(() => String, { nullable: true })
 	propertyDesc?: string;
 
-	@Field(() => Boolean)
-	propertyBarter: boolean;
-
 	@Field(() => String)
 	memberId: ObjectId;
 
