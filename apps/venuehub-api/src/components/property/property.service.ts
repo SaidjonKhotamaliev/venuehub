@@ -122,13 +122,13 @@ export class PropertyService {
 			propertyStatus: PropertyStatus.ACTIVE,
 		};
 
-		if (propertyStatus === PropertyStatus.SOLD) {
-			soldAt = moment().toDate();
-			input.soldAt = soldAt;
-		} else if (propertyStatus === PropertyStatus.DELETE) {
-			deletedAt = moment().toDate();
-			input.deletedAt = deletedAt;
-		}
+		// if (propertyStatus === PropertyStatus.SOLD) {
+		// 	soldAt = moment().toDate();
+		// 	input.soldAt = soldAt;
+		// } else if (propertyStatus === PropertyStatus.DELETE) {
+		// 	deletedAt = moment().toDate();
+		// 	input.deletedAt = deletedAt;
+		// }
 
 		const result = await this.propertyModel.findOneAndUpdate(search, input, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
@@ -335,8 +335,8 @@ export class PropertyService {
 			propertyStatus: PropertyStatus.ACTIVE,
 		};
 
-		if (propertyStatus === PropertyStatus.SOLD) soldAt = moment().toDate();
-		else if (propertyStatus === PropertyStatus.DELETE) deletedAt = moment().toDate();
+		// if (propertyStatus === PropertyStatus.SOLD) soldAt = moment().toDate();
+		// else if (propertyStatus === PropertyStatus.DELETE) deletedAt = moment().toDate();
 
 		const result = await this.propertyModel.findOneAndUpdate(search, input, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
