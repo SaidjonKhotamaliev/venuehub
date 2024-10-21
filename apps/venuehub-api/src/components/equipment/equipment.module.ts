@@ -23,4 +23,4 @@ import { EquipmentService } from './equipment.service';
 	providers: [EquipmentResolver, EquipmentService],
 	exports: [EquipmentService],
 })
-export class PropertyModule {}
+export class EquipmentModule {}

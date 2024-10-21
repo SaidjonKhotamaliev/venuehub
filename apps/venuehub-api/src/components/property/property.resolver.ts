@@ -2,6 +2,7 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ObjectId } from 'mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
+import { FavoriteResponse } from '../../libs/dto/favorite-response/favorite-response';
 import { Properties, Property } from '../../libs/dto/property/property';
 import {
 	AgentPropertiesInquiry,
@@ -68,25 +69,25 @@ export class PropertyResolver {
 		return await this.propertyService.getProperties(memberId, input);
 	}
 
-	@UseGuards(AuthGuard)
-	@Query((returns) => Properties)
-	public async getFavorites(
-		@Args('input') input: OrdinaryInquiry,
-		@AuthMember('_id') memberId: ObjectId,
-	): Promise<Properties> {
-		console.log('Query, getFavorites');
-		return await this.propertyService.getFavorites(memberId, input);
-	}
+	// @UseGuards(AuthGuard)
+	// @Query((returns) => FavoriteResponse)
+	// public async getFavorites(
+	// 	@Args('input') input: OrdinaryInquiry,
+	// 	@AuthMember('_id') memberId: ObjectId,
+	// ): Promise<FavoriteResponse> {
+	// 	console.log('Query, getFavorites');
+	// 	return await this.propertyService.getFavorites(memberId, input);
+	// }
 
-	@UseGuards(AuthGuard)
-	@Query((returns) => Properties)
-	public async getVisited(
-		@Args('input') input: OrdinaryInquiry,
-		@AuthMember('_id') memberId: ObjectId,
-	): Promise<Properties> {
-		console.log('Query, getVisited');
-		return await this.propertyService.getVisited(memberId, input);
-	}
+	// @UseGuards(AuthGuard)
+	// @Query((returns) => FavoriteResponse)
+	// public async getVisited(
+	// 	@Args('input') input: OrdinaryInquiry,
+	// 	@AuthMember('_id') memberId: ObjectId,
+	// ): Promise<FavoriteResponse> {
+	// 	console.log('Query, getVisited');
+	// 	return await this.propertyService.getVisited(memberId, input);
+	// }
 
 	@Roles(MemberType.AGENT)
 	@UseGuards(RolesGuard)

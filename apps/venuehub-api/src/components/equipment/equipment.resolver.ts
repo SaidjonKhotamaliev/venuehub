@@ -11,14 +11,7 @@ import {
 } from '../../libs/dto/equipment/equipment.input';
 import { EquipmentUpdate } from '../../libs/dto/equipment/equipment.update';
 import { FavoriteResponse } from '../../libs/dto/favorite-response/favorite-response';
-import { Properties, Property } from '../../libs/dto/property/property';
-import {
-	AgentPropertiesInquiry,
-	AllPropertiesInquiry,
-	OrdinaryInquiry,
-	PropertiesInquiry,
-} from '../../libs/dto/property/property.input';
-import { PropertyUpdate } from '../../libs/dto/property/property.update';
+import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { MemberType } from '../../libs/enums/member.enum';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';

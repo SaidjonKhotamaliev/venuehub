@@ -1,16 +1,12 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
-import { Properties, Property } from '../../libs/dto/property/property';
-import { AgentPropertiesInquiry, AllPropertiesInquiry, OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
-import { PropertyStatus } from '../../libs/enums/property.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { MemberService } from '../member/member.service';
 import { ViewService } from '../view/view.service';
 import * as moment from 'moment';
-import { PropertyUpdate } from '../../libs/dto/property/property.update';
 import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
@@ -25,6 +21,7 @@ import {
 	AllEquipmentsInquiry,
 	EquipmentInput,
 	EquipmentsInquiry,
+	OrdinaryInquiry,
 } from '../../libs/dto/equipment/equipment.input';
 import { Equipment, Equipments } from '../../libs/dto/equipment/equipment';
 import { EquipmentStatus } from '../../libs/enums/equipment.enum';

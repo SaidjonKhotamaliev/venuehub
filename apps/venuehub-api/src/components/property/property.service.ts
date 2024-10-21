@@ -12,7 +12,7 @@ import {
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { PropertyStatus } from '../../libs/enums/property.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
-import { FavoriteResponse, StatisticModifier, T } from '../../libs/types/common';
+import { StatisticModifier, T } from '../../libs/types/common';
 import { MemberService } from '../member/member.service';
 import { ViewService } from '../view/view.service';
 import * as moment from 'moment';
@@ -26,6 +26,7 @@ import { NotificationService } from '../notification/notification.service';
 import { NotificationInput } from '../../libs/dto/notification/notification.input';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { FollowService } from '../follow/follow.service';
+import { FavoriteResponse } from '../../libs/dto/favorite-response/favorite-response';
 
 @Injectable()
 export class PropertyService {
@@ -174,7 +175,7 @@ export class PropertyService {
 	}
 
 	private shapeMatchQuery(match: T, input: PropertiesInquiry): void {
-		const { memberId, locationList, typeList, periodsRange, pricesRange, squaresRange, options, text } = input.search;
+		const { memberId, locationList, typeList, periodsRange, pricesRange, squaresRange, text } = input.search;
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
 		if (locationList && locationList.length) match.propertyLocation = { $in: locationList };
 		if (typeList && typeList.length) match.propertyType = { $in: typeList };
@@ -184,18 +185,14 @@ export class PropertyService {
 		if (squaresRange) match.propertySquare = { $gte: squaresRange.start, $lte: squaresRange.end };
 
 		if (text) match.propertyTitle = { $regex: new RegExp(text, 'i') };
-		if (options)
-			match['$or'] = options.map((ele) => {
-				return { [ele]: true };
-			});
 	}
 
 	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<FavoriteResponse> {
 		return await this.likeService.getFavorites(memberId, input);
 	}
 
-	public async getVisited(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
-		return await this.viewService.getVisitedProperties(memberId, input);
+	public async getVisited(memberId: ObjectId, input: OrdinaryInquiry): Promise<FavoriteResponse> {
+		return await this.viewService.getVisited(memberId, input);
 	}
 
 	public async getAgentProperties(memberId: ObjectId, input: AgentPropertiesInquiry): Promise<Properties> {
