@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { lookupVisit } from '../../libs/config';
+import { Equipments } from '../../libs/dto/equipment/equipment';
+import { FavoriteResponse } from '../../libs/dto/favorite-response/favorite-response';
 import { Properties } from '../../libs/dto/property/property';
 import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { View } from '../../libs/dto/view/view';
@@ -28,13 +30,14 @@ export class ViewService {
 		return await this.viewModel.findOne(search).exec();
 	}
 
-	public async getVisitedProperties(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
+	public async getVisited(memberId: ObjectId, input: OrdinaryInquiry): Promise<FavoriteResponse> {
 		const { page, limit } = input;
-		const match: T = { viewGroup: ViewGroup.PROPERTY, memberId: memberId };
 
-		const data: T = await this.viewModel
+		// Fetch visited properties
+		const matchProperties: T = { viewGroup: ViewGroup.PROPERTY, memberId: memberId };
+		const propertyData: T = await this.viewModel
 			.aggregate([
-				{ $match: match },
+				{ $match: matchProperties },
 				{ $sort: { updatedAt: -1 } },
 				{ $lookup: { from: 'properties', localField: 'viewRefId', foreignField: '_id', as: 'visitedProperty' } },
 				{ $unwind: '$visitedProperty' },
@@ -54,11 +57,42 @@ export class ViewService {
 			])
 			.exec();
 
-		const result: Properties = { list: [], metaCounter: data[0].metaCounter };
+		const visitedProperties: Properties[] = propertyData[0]?.list.map((ele) => ele.visitedProperty) || [];
+		const propertyMetaCounter = propertyData[0]?.metaCounter[0]?.total || 0;
 
-		result.list = data[0].list.map((ele) => ele.visitedProperty);
-		console.log('result:', result);
+		// Fetch visited equipments
+		const matchEquipments: T = { viewGroup: ViewGroup.EQUIPMENT, memberId: memberId };
+		const equipmentData: T = await this.viewModel
+			.aggregate([
+				{ $match: matchEquipments },
+				{ $sort: { updatedAt: -1 } },
+				{ $lookup: { from: 'equipments', localField: 'viewRefId', foreignField: '_id', as: 'visitedEquipments' } },
+				{ $unwind: '$visitedEquipments' },
+				{
+					$facet: {
+						list: [
+							{ $skip: (page - 1) * limit },
+							{
+								$limit: limit,
+							},
+							lookupVisit,
+							{ $unwind: '$visitedEquipments.memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
 
-		return result;
+		const visitedEquipments: Equipments[] = equipmentData[0]?.list.map((ele) => ele.visitedEquipment) || [];
+		const equipmentMetaCounter = equipmentData[0]?.metaCounter[0]?.total || 0;
+
+		const totalMetaCounter = propertyMetaCounter + equipmentMetaCounter;
+
+		return {
+			properties: visitedProperties,
+			equipments: visitedEquipments,
+			metaCounter: totalMetaCounter,
+		};
 	}
 }

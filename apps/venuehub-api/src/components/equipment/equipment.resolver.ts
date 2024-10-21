@@ -15,7 +15,6 @@ import {
 } from '../../libs/dto/property/property.input';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
 import { MemberType } from '../../libs/enums/member.enum';
-import { FavoriteResponse } from '../../libs/types/common';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -83,11 +82,11 @@ export class EquipmentResolver {
 	}
 
 	@UseGuards(AuthGuard)
-	@Query((returns) => Properties)
+	@Query((returns) => FavoriteResponse)
 	public async getVisited(
 		@Args('input') input: OrdinaryInquiry,
 		@AuthMember('_id') memberId: ObjectId,
-	): Promise<Properties> {
+	): Promise<FavoriteResponse> {
 		console.log('Query, getVisited');
 		return await this.equipmentService.getVisited(memberId, input);
 	}

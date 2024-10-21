@@ -188,8 +188,8 @@ export class EquipmentService {
 		return await this.likeService.getFavorites(memberId, input);
 	}
 
-	public async getVisited(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
-		return await this.viewService.getVisitedProperties(memberId, input);
+	public async getVisited(memberId: ObjectId, input: OrdinaryInquiry): Promise<FavoriteResponse> {
+		return await this.viewService.getVisited(memberId, input);
 	}
 
 	public async getAgentProperties(memberId: ObjectId, input: AgentPropertiesInquiry): Promise<Properties> {
