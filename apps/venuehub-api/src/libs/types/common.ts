@@ -1,4 +1,6 @@
 import { ObjectId } from 'mongoose';
+import { Equipments } from '../dto/equipment/equipment';
+import { Properties } from '../dto/property/property';
 
 export interface T {
 	[key: string]: any;

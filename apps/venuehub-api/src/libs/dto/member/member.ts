@@ -42,6 +42,9 @@ export class Member {
 	memberProperties?: number;
 
 	@Field(() => Int)
+	memberEquipments?: number;
+
+	@Field(() => Int)
 	memberArticles?: number;
 
 	@Field(() => Int)

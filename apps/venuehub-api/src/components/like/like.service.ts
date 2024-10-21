@@ -2,6 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { lookupFavorite } from '../../libs/config';
+import { Equipments } from '../../libs/dto/equipment/equipment';
+import { FavoriteResponse } from '../../libs/dto/favorite-response/favorite-response';
 import { Like, MeLiked } from '../../libs/dto/like/like';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { Properties } from '../../libs/dto/property/property';
@@ -46,13 +48,73 @@ export class LikeService {
 		return result ? [{ memberId: memberId, likeRefId: likeRefId, myFavorite: true }] : [];
 	}
 
-	public async getFavoriteProperties(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
-		const { page, limit } = input;
-		const match: T = { likeGroup: LikeGroup.PROPERTY, memberId: memberId };
+	// public async getFavorite(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties | Equipments> {
+	// 	const { page, limit } = input;
+	// 	const match: T = { likeGroup: LikeGroup.PROPERTY, memberId: memberId };
+	// 	let data: T = await this.likeModel
+	// 		.aggregate([
+	// 			{ $match: match },
+	// 			{ $sort: { updatedAt: -1 } },
+	// 			{ $lookup: { from: 'properties', localField: 'likeRefId', foreignField: '_id', as: 'favoriteProperty' } },
+	// 			{ $unwind: '$favoriteProperty' },
+	// 			{
+	// 				$facet: {
+	// 					list: [
+	// 						{ $skip: (page - 1) * limit },
+	// 						{
+	// 							$limit: limit,
+	// 						},
+	// 						lookupFavorite,
+	// 						{ $unwind: '$favoriteProperty.memberData' },
+	// 					],
+	// 					metaCounter: [{ $count: 'total' }],
+	// 				},
+	// 			},
+	// 		])
+	// 		.exec();
 
-		const data: T = await this.likeModel
+	// 	const result1: Properties | Equipments = { list: [], metaCounter: data[0].metaCounter };
+	// 	result1.list = data[0].list.map((ele) => ele.favoriteProperty);
+
+	// 	const matchEquipment: T = { likeGroup: LikeGroup.EQUIPMENT, memberId: memberId };
+	// 	data = await this.likeModel
+	// 		.aggregate([
+	// 			{ $match: matchEquipment },
+	// 			{ $sort: { updatedAt: -1 } },
+	// 			{ $lookup: { from: 'equipments', localField: 'likeRefId', foreignField: '_id', as: 'favoriteEquipments' } },
+	// 			{ $unwind: '$favoriteEquipments' },
+	// 			{
+	// 				$facet: {
+	// 					list: [
+	// 						{ $skip: (page - 1) * limit },
+	// 						{
+	// 							$limit: limit,
+	// 						},
+	// 						lookupFavorite,
+	// 						{ $unwind: '$favoriteEquipments.memberData' },
+	// 					],
+	// 					metaCounter: [{ $count: 'total' }],
+	// 				},
+	// 			},
+	// 		])
+	// 		.exec();
+
+	// 	const result2: Properties | Equipments = { list: [], metaCounter: data[0].metaCounter };
+	// 	result2.list = data[0].list.map((ele) => ele.favoriteEquipments);
+
+	// 	console.log('result:', result1);
+
+	// 	return result1;
+	// }
+
+	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<FavoriteResponse> {
+		const { page, limit } = input;
+
+		// Fetch favorite properties
+		const matchProperties: T = { likeGroup: LikeGroup.PROPERTY, memberId: memberId };
+		const propertyData = await this.likeModel
 			.aggregate([
-				{ $match: match },
+				{ $match: matchProperties },
 				{ $sort: { updatedAt: -1 } },
 				{ $lookup: { from: 'properties', localField: 'likeRefId', foreignField: '_id', as: 'favoriteProperty' } },
 				{ $unwind: '$favoriteProperty' },
@@ -60,9 +122,7 @@ export class LikeService {
 					$facet: {
 						list: [
 							{ $skip: (page - 1) * limit },
-							{
-								$limit: limit,
-							},
+							{ $limit: limit },
 							lookupFavorite,
 							{ $unwind: '$favoriteProperty.memberData' },
 						],
@@ -72,11 +132,41 @@ export class LikeService {
 			])
 			.exec();
 
-		const result: Properties = { list: [], metaCounter: data[0].metaCounter };
+		const favoriteProperties: Properties[] = propertyData[0]?.list.map((ele) => ele.favoriteProperty) || [];
+		const propertyMetaCounter = propertyData[0]?.metaCounter[0]?.total || 0;
 
-		result.list = data[0].list.map((ele) => ele.favoriteProperty);
-		console.log('result:', result);
+		// Fetch favorite equipment
+		const matchEquipment: T = { likeGroup: LikeGroup.EQUIPMENT, memberId: memberId };
+		const equipmentData = await this.likeModel
+			.aggregate([
+				{ $match: matchEquipment },
+				{ $sort: { updatedAt: -1 } },
+				{ $lookup: { from: 'equipments', localField: 'likeRefId', foreignField: '_id', as: 'favoriteEquipments' } },
+				{ $unwind: '$favoriteEquipments' },
+				{
+					$facet: {
+						list: [
+							{ $skip: (page - 1) * limit },
+							{ $limit: limit },
+							lookupFavorite,
+							{ $unwind: '$favoriteEquipments.memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
 
-		return result;
+		const favoriteEquipments: Equipments[] = equipmentData[0]?.list.map((ele) => ele.favoriteEquipments) || [];
+		const equipmentMetaCounter = equipmentData[0]?.metaCounter[0]?.total || 0;
+
+		// Combine the metaCounter (for example, summing the totals)
+		const totalMetaCounter = propertyMetaCounter + equipmentMetaCounter;
+
+		return {
+			properties: favoriteProperties,
+			equipments: favoriteEquipments,
+			metaCounter: totalMetaCounter,
+		};
 	}
 }

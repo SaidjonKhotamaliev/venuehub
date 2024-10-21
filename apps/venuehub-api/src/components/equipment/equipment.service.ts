@@ -2,13 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException } from '@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Properties, Property } from '../../libs/dto/property/property';
-import {
-	AgentPropertiesInquiry,
-	AllPropertiesInquiry,
-	OrdinaryInquiry,
-	PropertiesInquiry,
-	PropertyInput,
-} from '../../libs/dto/property/property.input';
+import { AgentPropertiesInquiry, AllPropertiesInquiry, OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { PropertyStatus } from '../../libs/enums/property.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
@@ -26,11 +20,15 @@ import { NotificationService } from '../notification/notification.service';
 import { NotificationInput } from '../../libs/dto/notification/notification.input';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { FollowService } from '../follow/follow.service';
+import { EquipmentInput, EquipmentsInquiry } from '../../libs/dto/equipment/equipment.input';
+import { Equipment, Equipments } from '../../libs/dto/equipment/equipment';
+import { EquipmentStatus } from '../../libs/enums/equipment.enum';
+import { EquipmentUpdate } from '../../libs/dto/equipment/equipment.update';
 
 @Injectable()
-export class PropertyService {
+export class EquipmentService {
 	constructor(
-		@InjectModel('Property') private readonly propertyModel: Model<Property>,
+		@InjectModel('Equipment') private readonly equipmentModel: Model<Equipment>,
 		private readonly memberService: MemberService,
 		private readonly viewService: ViewService,
 		private readonly followService: FollowService,
@@ -38,12 +36,12 @@ export class PropertyService {
 		private readonly notificationService: NotificationService,
 	) {}
 
-	public async createProperty(input: PropertyInput): Promise<Property> {
+	public async createEquipment(input: EquipmentInput): Promise<Equipment> {
 		try {
-			const result = await this.propertyModel.create(input);
+			const result = await this.equipmentModel.create(input);
 			await this.memberService.memberStatsEditor({
 				_id: result.memberId,
-				targetKey: 'memberProperties',
+				targetKey: 'memberEquipments',
 				modifier: 1,
 			});
 
@@ -76,65 +74,68 @@ export class PropertyService {
 	private async createNotificationInputForCreate(
 		authorId: ObjectId,
 		receiverId: ObjectId,
-		receiverProperty: Property,
+		receiverEquipment: Equipment,
 	): Promise<NotificationInput> {
 		const member: Member = await this.memberService.getMemberIdOfMember(authorId);
 		return {
 			notificationType: NotificationType.CREATE,
-			notificationGroup: NotificationGroup.PROPERTY,
-			notificationTitle: `${member.memberNick} created a new property:  ${receiverProperty.propertyTitle}`,
+			notificationGroup: NotificationGroup.EQUIPMENT,
+			notificationTitle: `${member.memberNick} created a new equipment:  ${receiverEquipment.equipmentTitle}`,
 			authorId: authorId,
 			receiverId,
-			notificationDesc: 'Check the new property.',
+			notificationDesc: 'Check the new equipment.',
 		};
 	}
 
-	public async getProperty(memberId: ObjectId, propertyId: ObjectId): Promise<Property> {
+	public async getEquipment(memberId: ObjectId, equipmentId: ObjectId): Promise<Equipment> {
 		const search: T = {
-			_id: propertyId,
-			propertyStatus: PropertyStatus.ACTIVE,
+			_id: equipmentId,
+			equipmentStatus: EquipmentStatus.ACTIVE,
 		};
 
-		const targetProperty: Property = await this.propertyModel.findOne(search).lean().exec();
-		if (!targetProperty) throw new InternalServerErrorException(Message.NOT_DATA_FOUND);
+		const targetEquipment: Equipment = await this.equipmentModel.findOne(search).lean().exec();
+		if (!targetEquipment) throw new InternalServerErrorException(Message.NOT_DATA_FOUND);
 
 		if (memberId) {
-			const viewInput = { memberId: memberId, viewRefId: propertyId, viewGroup: ViewGroup.PROPERTY };
+			const viewInput = { memberId: memberId, viewRefId: equipmentId, viewGroup: ViewGroup.EQUIPMENT };
 			const newView = await this.viewService.recordView(viewInput);
 			if (newView) {
-				await this.propertyStatsEditor({ _id: propertyId, targetKey: 'propertyViews', modifier: 1 });
-				targetProperty.propertyViews++;
+				await this.equipmentStatsEditor({ _id: equipmentId, targetKey: 'equipmentViews', modifier: 1 });
+				targetEquipment.equipmentViews++;
 			}
-			const likeInput = { memberId: memberId, likeRefId: propertyId, likeGroup: LikeGroup.PROPERTY };
-			targetProperty.meLiked = await this.likeService.checkLikeExistance(likeInput);
+			const likeInput = { memberId: memberId, likeRefId: equipmentId, likeGroup: LikeGroup.EQUIPMENT };
+			targetEquipment.meLiked = await this.likeService.checkLikeExistance(likeInput);
 		}
 
-		targetProperty.memberData = await this.memberService.getMember(null, targetProperty.memberId);
-		return targetProperty;
+		targetEquipment.memberData = await this.memberService.getMember(null, targetEquipment.memberId);
+		return targetEquipment;
 	}
 
-	public async updateProperty(memberId: ObjectId, input: PropertyUpdate): Promise<Property> {
-		let { rentedAt, propertyStatus, deletedAt } = input;
+	public async updateEquipment(memberId: ObjectId, input: EquipmentUpdate): Promise<Equipment> {
+		let { rentedAt, equipmentStatus, deletedAt, retiredAt, maintanencedAt } = input;
 
 		const search: T = {
 			_id: input._id,
 			memberId: memberId,
-			propertyStatus: PropertyStatus.ACTIVE,
+			equipmentStatus: EquipmentStatus.ACTIVE,
 		};
 
-		if (propertyStatus === PropertyStatus.RENT) {
+		if (equipmentStatus === EquipmentStatus.RENT) {
 			rentedAt = moment().toDate();
 			input.rentedAt = rentedAt;
-		} else if (propertyStatus === PropertyStatus.DELETE) {
-			deletedAt = moment().toDate();
+		} else if (equipmentStatus === EquipmentStatus.RETIRED) {
+			retiredAt = moment().toDate();
+			input.deletedAt = deletedAt;
+		} else if (equipmentStatus === EquipmentStatus.MAINTENANCE) {
+			maintanencedAt = moment().toDate();
 			input.deletedAt = deletedAt;
 		}
 
-		const result = await this.propertyModel.findOneAndUpdate(search, input, { new: true }).exec();
+		const result = await this.equipmentModel.findOneAndUpdate(search, input, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
-		if (rentedAt || deletedAt) {
-			await this.memberService.memberStatsEditor({ _id: memberId, targetKey: 'memberProperties', modifier: -1 });
+		if (rentedAt || deletedAt || maintanencedAt) {
+			await this.memberService.memberStatsEditor({ _id: memberId, targetKey: 'memberEquipments', modifier: -1 });
 		}
 
 		console.log('result +++++: ', result);
@@ -142,14 +143,14 @@ export class PropertyService {
 		return result;
 	}
 
-	public async getProperties(memberId: ObjectId, input: PropertiesInquiry): Promise<Properties> {
-		const match: T = { propertyStatus: PropertyStatus.ACTIVE };
+	public async getEquipments(memberId: ObjectId, input: EquipmentsInquiry): Promise<Equipments> {
+		const match: T = { equipmentsStatus: EquipmentStatus.ACTIVE };
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		this.shapeMatchQuery(match, input);
 		console.log('match: ', match);
 
-		const result = await this.propertyModel
+		const result = await this.equipmentModel
 			.aggregate([
 				{ $match: match },
 				{ $sort: sort },
@@ -173,21 +174,14 @@ export class PropertyService {
 		return result[0];
 	}
 
-	private shapeMatchQuery(match: T, input: PropertiesInquiry): void {
-		const { memberId, locationList, typeList, periodsRange, pricesRange, squaresRange, options, text } = input.search;
+	private shapeMatchQuery(match: T, input: EquipmentsInquiry): void {
+		const { memberId, typeList, periodsRange, pricesRange, text } = input.search;
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
-		if (locationList && locationList.length) match.propertyLocation = { $in: locationList };
-		if (typeList && typeList.length) match.propertyType = { $in: typeList };
+		if (typeList && typeList.length) match.equipmentType = { $in: typeList };
 
 		if (periodsRange) match.createdAt = { $gte: periodsRange.start, $lte: periodsRange.end };
-		if (pricesRange) match.propertyRentPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
-		if (squaresRange) match.propertySquare = { $gte: squaresRange.start, $lte: squaresRange.end };
-
-		if (text) match.propertyTitle = { $regex: new RegExp(text, 'i') };
-		if (options)
-			match['$or'] = options.map((ele) => {
-				return { [ele]: true };
-			});
+		if (pricesRange) match.equipmentRentPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
+		if (text) match.equipmentTitle = { $regex: new RegExp(text, 'i') };
 	}
 
 	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<FavoriteResponse> {
@@ -335,24 +329,24 @@ export class PropertyService {
 		return result;
 	}
 
-	public async removePropertyByAdmin(propertyId: ObjectId): Promise<Property> {
+	public async removePropertyByAdmin(propertyId: ObjectId): Promise<Equipment> {
 		const search: T = {
 			_id: propertyId,
 			propertyStatus: PropertyStatus.DELETE,
 		};
 
-		const result = await this.propertyModel.findOneAndDelete(search).exec();
+		const result = await this.equipmentModel.findOneAndDelete(search).exec();
 		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
 
 		return result;
 	}
 
-	public async propertyStatsEditor(input: StatisticModifier): Promise<Property> {
+	public async equipmentStatsEditor(input: StatisticModifier): Promise<Equipment> {
 		const { _id, targetKey, modifier } = input;
-		return await this.propertyModel.findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true }).exec();
+		return await this.equipmentModel.findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true }).exec();
 	}
 
-	public async getMemberOfProperty(input: ObjectId): Promise<Property> {
-		return await this.propertyModel.findById(input);
+	public async getMemberOfProperty(input: ObjectId): Promise<Equipment> {
+		return await this.equipmentModel.findById(input);
 	}
 }

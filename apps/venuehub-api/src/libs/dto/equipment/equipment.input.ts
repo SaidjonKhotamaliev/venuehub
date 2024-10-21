@@ -18,7 +18,7 @@ export class EquipmentInput {
 	@IsNotEmpty()
 	@Length(3, 100)
 	@Field(() => String)
-	euqipmentTitle: string;
+	equipmentTitle: string;
 
 	@IsNotEmpty()
 	@Field(() => Number)
@@ -81,7 +81,7 @@ export class EIsearch {
 }
 
 @InputType()
-export class PropertiesInquiry {
+export class EquipmentsInquiry {
 	@IsNotEmpty()
 	@Min(1)
 	@Field(() => Int)

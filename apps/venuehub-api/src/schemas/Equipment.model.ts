@@ -1,6 +1,5 @@
 import { Schema } from 'mongoose';
 import { EquipmentStatus, EquipmentType } from '../libs/enums/equipment.enum';
-import { PropertyLocation, PropertyStatus, PropertyType } from '../libs/enums/property.enum';
 
 const EquipmentSchema = new Schema(
 	{

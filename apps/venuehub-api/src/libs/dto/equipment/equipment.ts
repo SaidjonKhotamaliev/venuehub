@@ -19,7 +19,7 @@ export class Equipment {
 	equipmentCondition: EquipmentCondition;
 
 	@Field(() => String)
-	euqipmentTitle: string;
+	equipmentTitle: string;
 
 	@Field(() => Number)
 	equipmentRentPrice: number;
@@ -52,7 +52,10 @@ export class Equipment {
 	deletedAt?: Date;
 
 	@Field(() => Date, { nullable: true })
-	constructedAt?: Date;
+	maintanencedAt?: Date;
+
+	@Field(() => Date, { nullable: true })
+	retiredAt?: Date;
 
 	@Field(() => Date)
 	createdAt: Date;

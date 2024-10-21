@@ -25,7 +25,7 @@ export class EquipmentUpdate {
 	@IsOptional()
 	@Length(3, 100)
 	@Field(() => String, { nullable: true })
-	euqipmentTitle?: string;
+	equipmentTitle?: string;
 
 	@IsOptional()
 	@Field(() => Number, { nullable: true })
@@ -40,9 +40,19 @@ export class EquipmentUpdate {
 	@Field(() => String, { nullable: true })
 	equipmentDesc?: string;
 
+	@IsOptional()
+	@Field(() => Date, { nullable: true })
 	rentedAt?: Date;
 
 	deletedAt?: Date;
+
+	@IsOptional()
+	@Field(() => Date, { nullable: true })
+	retiredAt?: Date;
+
+	@IsOptional()
+	@Field(() => Date, { nullable: true })
+	maintanencedAt?: Date;
 
 	@IsOptional()
 	@Field(() => Date, { nullable: true })
