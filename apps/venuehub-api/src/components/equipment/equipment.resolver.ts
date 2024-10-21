@@ -3,7 +3,12 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ObjectId } from 'mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { Equipment, Equipments } from '../../libs/dto/equipment/equipment';
-import { EquipmentInput, EquipmentsInquiry } from '../../libs/dto/equipment/equipment.input';
+import {
+	AgentEquipmentsInquiry,
+	AllEquipmentsInquiry,
+	EquipmentInput,
+	EquipmentsInquiry,
+} from '../../libs/dto/equipment/equipment.input';
 import { EquipmentUpdate } from '../../libs/dto/equipment/equipment.update';
 import { FavoriteResponse } from '../../libs/dto/favorite-response/favorite-response';
 import { Properties, Property } from '../../libs/dto/property/property';
@@ -93,54 +98,54 @@ export class EquipmentResolver {
 
 	@Roles(MemberType.AGENT)
 	@UseGuards(RolesGuard)
-	@Query((returns) => Properties)
-	public async getAgentProperties(
-		@Args('input') input: AgentPropertiesInquiry,
+	@Query((returns) => Equipments)
+	public async getAgentEquipments(
+		@Args('input') input: AgentEquipmentsInquiry,
 		@AuthMember('_id') memberId: ObjectId,
-	): Promise<Properties> {
-		console.log('Query, getAgentProperties');
-		return await this.equipmentService.getAgentProperties(memberId, input);
+	): Promise<Equipments> {
+		console.log('Query, getAgentEquipments');
+		return await this.equipmentService.getAgentEquipments(memberId, input);
 	}
 
 	@UseGuards(AuthGuard)
-	@Mutation(() => Property)
-	public async likeTargetProperty(
-		@Args('propertyId') input: string,
+	@Mutation(() => Equipment)
+	public async likeTargetEquipment(
+		@Args('equipmentId') input: string,
 		@AuthMember('_id') memberId: ObjectId,
-	): Promise<Property> {
-		console.log('Mutation, likeTargetProperty');
+	): Promise<Equipment> {
+		console.log('Mutation, likeTargetEquipment');
 		const likeRefId = shapeIntoMongoObjectId(input);
-		return await this.equipmentService.likeTargetProperty(memberId, likeRefId);
+		return await this.equipmentService.likeTargetEquipment(memberId, likeRefId);
 	}
 
 	// ADMIN
 
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
-	@Query((returns) => Properties)
-	public async getAllPropertiesByAdmin(
-		@Args('input') input: AllPropertiesInquiry,
+	@Query((returns) => Equipments)
+	public async getAllEquipmentsByAdmin(
+		@Args('input') input: AllEquipmentsInquiry,
 		@AuthMember('_id') memberId: ObjectId,
-	): Promise<Properties> {
-		console.log('Query, getAllPropertiesByAdmin');
-		return await this.equipmentService.getAllPropertiesByAdmin(input);
+	): Promise<Equipments> {
+		console.log('Query, getAllEquipmentsByAdmin');
+		return await this.equipmentService.getAllEquipmentsByAdmin(input);
 	}
 
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
-	@Mutation((returns) => Property)
-	public async updatePropertyByAdmin(@Args('input') input: PropertyUpdate): Promise<Property> {
-		console.log('Mutation, updatePropertyByAdmin');
+	@Mutation((returns) => Equipment)
+	public async updateEquipmentByAdmin(@Args('input') input: EquipmentUpdate): Promise<Equipment> {
+		console.log('Mutation, updateEquipmentByAdmin');
 		input._id = shapeIntoMongoObjectId(input._id);
-		return await this.equipmentService.updatePropertyByAdmin(input);
+		return await this.equipmentService.updateEquipmentByAdmin(input);
 	}
 
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
-	@Mutation((returns) => Property)
-	public async removePropertyByAdmin(@Args('propertyId') input: string): Promise<Property> {
-		console.log('Mutation, removePropertyByAdmin');
-		const propertyId = shapeIntoMongoObjectId(input);
-		return await this.equipmentService.removePropertyByAdmin(propertyId);
+	@Mutation((returns) => Equipment)
+	public async removeEquipmentByAdmin(@Args('equipmentId') input: string): Promise<Equipment> {
+		console.log('Mutation, removeEquipmentByAdmin');
+		const equipmentId = shapeIntoMongoObjectId(input);
+		return await this.equipmentService.removeEquipmentByAdmin(equipmentId);
 	}
 }

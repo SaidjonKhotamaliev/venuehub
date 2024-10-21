@@ -6,7 +6,7 @@ import { AgentPropertiesInquiry, AllPropertiesInquiry, OrdinaryInquiry } from '.
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { PropertyStatus } from '../../libs/enums/property.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
-import { FavoriteResponse, StatisticModifier, T } from '../../libs/types/common';
+import { StatisticModifier, T } from '../../libs/types/common';
 import { MemberService } from '../member/member.service';
 import { ViewService } from '../view/view.service';
 import * as moment from 'moment';
@@ -20,10 +20,16 @@ import { NotificationService } from '../notification/notification.service';
 import { NotificationInput } from '../../libs/dto/notification/notification.input';
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { FollowService } from '../follow/follow.service';
-import { EquipmentInput, EquipmentsInquiry } from '../../libs/dto/equipment/equipment.input';
+import {
+	AgentEquipmentsInquiry,
+	AllEquipmentsInquiry,
+	EquipmentInput,
+	EquipmentsInquiry,
+} from '../../libs/dto/equipment/equipment.input';
 import { Equipment, Equipments } from '../../libs/dto/equipment/equipment';
 import { EquipmentStatus } from '../../libs/enums/equipment.enum';
 import { EquipmentUpdate } from '../../libs/dto/equipment/equipment.update';
+import { FavoriteResponse } from '../../libs/dto/favorite-response/favorite-response';
 
 @Injectable()
 export class EquipmentService {
@@ -192,14 +198,13 @@ export class EquipmentService {
 		return await this.viewService.getVisited(memberId, input);
 	}
 
-	public async getAgentProperties(memberId: ObjectId, input: AgentPropertiesInquiry): Promise<Properties> {
-		const { propertyStatus } = input.search;
-		if (propertyStatus === PropertyStatus.DELETE) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+	public async getAgentEquipments(memberId: ObjectId, input: AgentEquipmentsInquiry): Promise<Equipments> {
+		const { equipmentStatus } = input.search;
 
-		const match: T = { memberId: memberId, propertyStatus: propertyStatus ?? { $ne: PropertyStatus.DELETE } };
+		const match: T = { memberId: memberId, propertyStatus: equipmentStatus ?? { $ne: EquipmentStatus.RETIRED } };
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
-		const result = await this.propertyModel
+		const result = await this.equipmentModel
 			.aggregate([
 				{ $match: match },
 				{ $sort: sort },
@@ -223,9 +228,9 @@ export class EquipmentService {
 		return result[0];
 	}
 
-	public async likeTargetProperty(memberId: ObjectId, likeRefId: ObjectId): Promise<Property> {
-		const target: Property = await this.propertyModel
-			.findOne({ _id: likeRefId, propertyStatus: PropertyStatus.ACTIVE })
+	public async likeTargetEquipment(memberId: ObjectId, likeRefId: ObjectId): Promise<Equipment> {
+		const target: Equipment = await this.equipmentModel
+			.findOne({ _id: likeRefId, equipmentStatus: EquipmentStatus.ACTIVE })
 			.exec();
 
 		if (!target) throw new InternalServerErrorException(Message.NOT_DATA_FOUND);
@@ -233,18 +238,18 @@ export class EquipmentService {
 		const input: LikeInput = {
 			memberId: memberId,
 			likeRefId: likeRefId,
-			likeGroup: LikeGroup.PROPERTY,
+			likeGroup: LikeGroup.EQUIPMENT,
 		};
 
 		const modifier: number = await this.likeService.toggleLike(input);
-		const result = await this.propertyStatsEditor({ _id: likeRefId, targetKey: 'propertyLikes', modifier: modifier });
+		const result = await this.equipmentStatsEditor({ _id: likeRefId, targetKey: 'equipmentLikes', modifier: modifier });
 
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 
 		if (modifier === 1) {
 			const notificationInput = this.createNotificationInputForLike(
 				target,
-				NotificationGroup.PROPERTY,
+				NotificationGroup.EQUIPMENT,
 				memberId,
 				target.memberId,
 			);
@@ -255,7 +260,7 @@ export class EquipmentService {
 	}
 
 	private async createNotificationInputForLike(
-		receiverProperty?: Property,
+		receiverEquipment?: Equipment,
 		notificationGroup?: NotificationGroup,
 		authorId?: ObjectId,
 		receiverId?: ObjectId,
@@ -265,7 +270,7 @@ export class EquipmentService {
 			notificationType: NotificationType.LIKE,
 			receiverId,
 			notificationGroup,
-			notificationTitle: `${member.memberNick} liked your ${receiverProperty.propertyTitle} property!`,
+			notificationTitle: `${member.memberNick} liked your ${receiverEquipment.equipmentTitle} equipment!`,
 			authorId,
 			notificationDesc: 'Check out the new like.',
 		};
@@ -273,17 +278,14 @@ export class EquipmentService {
 
 	// ADMIN
 
-	public async getAllPropertiesByAdmin(input: AllPropertiesInquiry): Promise<Properties> {
-		const { propertyStatus, propertyLocationList } = input.search;
+	public async getAllEquipmentsByAdmin(input: AllEquipmentsInquiry): Promise<Equipments> {
+		const { equipmentStatus } = input.search;
 		const match: T = {};
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
-		if (propertyStatus) match.propertyStatus = propertyStatus;
-		if (propertyLocationList) match.propertyLocation = { $in: propertyLocationList };
+		if (equipmentStatus) match.propertyStatus = equipmentStatus;
 
-		console.log(propertyLocationList);
-
-		const result = await this.propertyModel
+		const result = await this.equipmentModel
 			.aggregate([
 				{ $match: match },
 				{ $sort: sort },
@@ -308,31 +310,32 @@ export class EquipmentService {
 		return result[0];
 	}
 
-	public async updatePropertyByAdmin(input: PropertyUpdate): Promise<Property> {
-		let { rentedAt, propertyStatus, deletedAt } = input;
+	public async updateEquipmentByAdmin(input: EquipmentUpdate): Promise<Equipment> {
+		let { rentedAt, equipmentStatus, maintanencedAt, retiredAt } = input;
 
 		const search: T = {
 			_id: input._id,
-			propertyStatus: PropertyStatus.ACTIVE,
+			equipmentStatus: EquipmentStatus.ACTIVE,
 		};
 
-		if (propertyStatus === PropertyStatus.RENT) rentedAt = moment().toDate();
-		else if (propertyStatus === PropertyStatus.DELETE) deletedAt = moment().toDate();
+		if (equipmentStatus === EquipmentStatus.RENT) rentedAt = moment().toDate();
+		else if (equipmentStatus === EquipmentStatus.MAINTENANCE) maintanencedAt = moment().toDate();
+		else if (equipmentStatus === EquipmentStatus.RETIRED) retiredAt = moment().toDate();
 
-		const result = await this.propertyModel.findOneAndUpdate(search, input, { new: true }).exec();
+		const result = await this.equipmentModel.findOneAndUpdate(search, input, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
-		if (rentedAt || deletedAt) {
-			await this.memberService.memberStatsEditor({ _id: result.memberId, targetKey: 'memberProperties', modifier: -1 });
+		if (rentedAt || retiredAt || maintanencedAt) {
+			await this.memberService.memberStatsEditor({ _id: result.memberId, targetKey: 'memberEquipments', modifier: -1 });
 		}
 
 		return result;
 	}
 
-	public async removePropertyByAdmin(propertyId: ObjectId): Promise<Equipment> {
+	public async removeEquipmentByAdmin(equipmentId: ObjectId): Promise<Equipment> {
 		const search: T = {
-			_id: propertyId,
-			propertyStatus: PropertyStatus.DELETE,
+			_id: equipmentId,
+			equipmentStatus: EquipmentStatus.RETIRED,
 		};
 
 		const result = await this.equipmentModel.findOneAndDelete(search).exec();
