@@ -49,7 +49,7 @@ export class PropertyInput {
 	constructedAt?: Date;
 }
 @InputType()
-export class PricesRange {
+export class PricesRangeProperty {
 	@Field(() => Int)
 	start: number;
 
@@ -58,7 +58,7 @@ export class PricesRange {
 }
 
 @InputType()
-export class SquaresRange {
+export class SquaresRangeProperty {
 	@Field(() => Int)
 	start: number;
 
@@ -67,7 +67,7 @@ export class SquaresRange {
 }
 
 @InputType()
-export class PeriodsRange {
+export class PeriodsRangeProperty {
 	@Field(() => Date)
 	start: Date;
 
@@ -98,16 +98,16 @@ export class PIsearch {
 	bedsList?: number[];
 
 	@IsOptional()
-	@Field(() => PricesRange, { nullable: true })
-	pricesRange?: PricesRange;
+	@Field(() => PricesRangeProperty, { nullable: true })
+	pricesRangeProperty?: PricesRangeProperty;
 
 	@IsOptional()
-	@Field(() => PeriodsRange, { nullable: true })
-	periodsRange?: PeriodsRange;
+	@Field(() => PeriodsRangeProperty, { nullable: true })
+	periodsRangeProperty?: PeriodsRangeProperty;
 
 	@IsOptional()
-	@Field(() => SquaresRange, { nullable: true })
-	squaresRange?: SquaresRange;
+	@Field(() => SquaresRangeProperty, { nullable: true })
+	squaresRangeProperty?: SquaresRangeProperty;
 
 	@IsOptional()
 	@Field(() => String, { nullable: true })
@@ -209,7 +209,7 @@ export class AllPropertiesInquiry {
 }
 
 @InputType()
-export class OrdinaryInquiry {
+export class OrdinaryInquiryProperty {
 	@IsNotEmpty()
 	@Min(1)
 	@Field(() => Int)
