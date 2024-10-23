@@ -61,12 +61,8 @@ export class EquipmentService {
 			for (const follower of followers) {
 				const notificationInput = this.createNotificationInputForCreate(input.memberId, follower._id, result);
 
-				console.log(follower.followerId);
-
 				await this.notificationService.createNotification(await notificationInput);
 			}
-
-			console.log('result:', result);
 
 			return result;
 		} catch (err) {
@@ -116,29 +112,34 @@ export class EquipmentService {
 	}
 
 	public async updateEquipment(memberId: ObjectId, input: EquipmentUpdate): Promise<Equipment> {
-		let { rentedAt, equipmentStatus, deletedAt, retiredAt, maintanencedAt } = input;
+		let { equipmentStatus } = input;
+
+		console.log('input: ', input);
+
+		console.log('PASSED HERE 1');
 
 		const search: T = {
 			_id: input._id,
 			memberId: memberId,
-			equipmentStatus: EquipmentStatus.ACTIVE,
+			equipmentStatus: { $ne: EquipmentStatus.RETIRED },
 		};
 
 		if (equipmentStatus === EquipmentStatus.RENT) {
-			rentedAt = moment().toDate();
+			const rentedAt = moment().toDate();
 			input.rentedAt = rentedAt;
 		} else if (equipmentStatus === EquipmentStatus.RETIRED) {
-			retiredAt = moment().toDate();
-			input.deletedAt = deletedAt;
+			const retiredAt = moment().toDate();
+			input.retiredAt = retiredAt;
 		} else if (equipmentStatus === EquipmentStatus.MAINTENANCE) {
-			maintanencedAt = moment().toDate();
-			input.deletedAt = deletedAt;
+			const maintanencedAt = moment().toDate();
+			input.maintanencedAt = maintanencedAt;
 		}
 
+		console.log('PASSED HERE 2');
 		const result = await this.equipmentModel.findOneAndUpdate(search, input, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
-		if (rentedAt || deletedAt || maintanencedAt) {
+		if (input.rentedAt || input.deletedAt || input.maintanencedAt) {
 			await this.memberService.memberStatsEditor({ _id: memberId, targetKey: 'memberEquipments', modifier: -1 });
 		}
 

@@ -19,8 +19,8 @@ export class EquipmentUpdate {
 	equipmentStatus?: EquipmentStatus;
 
 	@IsOptional()
-	@Field(() => EquipmentCondition)
-	equipmentCondition: EquipmentCondition;
+	@Field(() => EquipmentCondition, { nullable: true })
+	equipmentCondition?: EquipmentCondition;
 
 	@IsOptional()
 	@Length(3, 100)

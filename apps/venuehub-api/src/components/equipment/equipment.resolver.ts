@@ -32,7 +32,6 @@ export class EquipmentResolver {
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Equipment> {
 		console.log('Mutation, createEquipment');
-		console.log('Equipment.condition', input.equipmentCondition);
 
 		input.memberId = memberId;
 		return await this.equipmentService.createEquipment(input);

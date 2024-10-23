@@ -74,7 +74,11 @@ const EquipmentSchema = new Schema(
 			type: Date,
 		},
 
-		constructedAt: {
+		maintanencedAt: {
+			type: Date,
+		},
+
+		retiredAt: {
 			type: Date,
 		},
 	},
