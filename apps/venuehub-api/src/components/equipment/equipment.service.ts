@@ -56,7 +56,6 @@ export class EquipmentService {
 
 			if (!followers || followers.length === 0) {
 				console.log('No followers found for this agent.');
-				return result;
 			}
 
 			for (const follower of followers) {
@@ -66,6 +65,8 @@ export class EquipmentService {
 
 				await this.notificationService.createNotification(await notificationInput);
 			}
+
+			console.log('result:', result);
 
 			return result;
 		} catch (err) {

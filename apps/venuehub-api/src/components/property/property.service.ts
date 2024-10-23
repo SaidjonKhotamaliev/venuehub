@@ -5,7 +5,6 @@ import { Properties, Property } from '../../libs/dto/property/property';
 import {
 	AgentPropertiesInquiry,
 	AllPropertiesInquiry,
-	OrdinaryInquiry,
 	PropertiesInquiry,
 	PropertyInput,
 } from '../../libs/dto/property/property.input';
@@ -27,6 +26,7 @@ import { NotificationInput } from '../../libs/dto/notification/notification.inpu
 import { NotificationGroup, NotificationType } from '../../libs/enums/notification.enum';
 import { FollowService } from '../follow/follow.service';
 import { FavoriteResponse } from '../../libs/dto/favorite-response/favorite-response';
+import { OrdinaryInquiry } from '../../libs/dto/equipment/equipment.input';
 
 @Injectable()
 export class PropertyService {

@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { EquipmentStatus, EquipmentType } from '../libs/enums/equipment.enum';
+import { EquipmentCondition, EquipmentStatus, EquipmentType } from '../libs/enums/equipment.enum';
 
 const EquipmentSchema = new Schema(
 	{
@@ -13,6 +13,12 @@ const EquipmentSchema = new Schema(
 			type: String,
 			enum: EquipmentStatus,
 			default: EquipmentStatus.ACTIVE,
+		},
+
+		equipmentCondition: {
+			type: String,
+			enum: EquipmentCondition,
+			default: EquipmentCondition.NEW,
 		},
 
 		equipmentTitle: {
