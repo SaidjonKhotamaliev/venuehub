@@ -93,7 +93,7 @@ export class PropertyService {
 	public async getProperty(memberId: ObjectId, propertyId: ObjectId): Promise<Property> {
 		const search: T = {
 			_id: propertyId,
-			propertyStatus: PropertyStatus.ACTIVE,
+			propertyStatus: { $ne: PropertyStatus.DELETE },
 		};
 
 		const targetProperty: Property = await this.propertyModel.findOne(search).lean().exec();
@@ -120,7 +120,7 @@ export class PropertyService {
 		const search: T = {
 			_id: input._id,
 			memberId: memberId,
-			propertyStatus: PropertyStatus.ACTIVE,
+			propertyStatus: { $ne: PropertyStatus.DELETE },
 		};
 
 		if (propertyStatus === PropertyStatus.RENT) {
@@ -144,7 +144,7 @@ export class PropertyService {
 	}
 
 	public async getProperties(memberId: ObjectId, input: PropertiesInquiry): Promise<Properties> {
-		const match: T = { propertyStatus: PropertyStatus.ACTIVE };
+		const match: T = { propertyStatus: { $ne: PropertyStatus.DELETE } };
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		this.shapeMatchQuery(match, input);
@@ -231,7 +231,7 @@ export class PropertyService {
 
 	public async likeTargetProperty(memberId: ObjectId, likeRefId: ObjectId): Promise<Property> {
 		const target: Property = await this.propertyModel
-			.findOne({ _id: likeRefId, propertyStatus: PropertyStatus.ACTIVE })
+			.findOne({ _id: likeRefId, propertyStatus: { $ne: PropertyStatus.DELETE } })
 			.exec();
 
 		if (!target) throw new InternalServerErrorException(Message.NOT_DATA_FOUND);
@@ -319,7 +319,7 @@ export class PropertyService {
 
 		const search: T = {
 			_id: input._id,
-			propertyStatus: PropertyStatus.ACTIVE,
+			propertyStatus: { $ne: PropertyStatus.DELETE },
 		};
 
 		if (propertyStatus === PropertyStatus.RENT) rentedAt = moment().toDate();
