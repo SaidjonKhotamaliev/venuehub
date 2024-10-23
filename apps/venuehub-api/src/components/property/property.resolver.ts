@@ -68,26 +68,6 @@ export class PropertyResolver {
 		return await this.propertyService.getProperties(memberId, input);
 	}
 
-	// @UseGuards(AuthGuard)
-	// @Query((returns) => FavoriteResponse)
-	// public async getFavorites(
-	// 	@Args('input') input: OrdinaryInquiry,
-	// 	@AuthMember('_id') memberId: ObjectId,
-	// ): Promise<FavoriteResponse> {
-	// 	console.log('Query, getFavorites');
-	// 	return await this.propertyService.getFavorites(memberId, input);
-	// }
-
-	// @UseGuards(AuthGuard)
-	// @Query((returns) => FavoriteResponse)
-	// public async getVisited(
-	// 	@Args('input') input: OrdinaryInquiry,
-	// 	@AuthMember('_id') memberId: ObjectId,
-	// ): Promise<FavoriteResponse> {
-	// 	console.log('Query, getVisited');
-	// 	return await this.propertyService.getVisited(memberId, input);
-	// }
-
 	@Roles(MemberType.AGENT)
 	@UseGuards(RolesGuard)
 	@Query((returns) => Properties)

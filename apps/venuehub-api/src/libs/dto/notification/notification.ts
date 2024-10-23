@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { IsEnum, IsOptional, IsString, IsNotEmpty, IsMongoId } from 'class-validator';
 import { ObjectId } from 'mongoose';
 import { NotificationType, NotificationGroup, NotificationStatus } from '../../enums/notification.enum';
@@ -42,12 +42,17 @@ export class Notification {
 
 	@IsMongoId()
 	@IsOptional()
-	@Field(() => String)
+	@Field(() => String, { nullable: true })
 	propertyId?: ObjectId;
 
 	@IsMongoId()
 	@IsOptional()
-	@Field(() => String)
+	@Field(() => String, { nullable: true })
+	equipmentId?: ObjectId;
+
+	@IsMongoId()
+	@IsOptional()
+	@Field(() => String, { nullable: true })
 	articleId?: ObjectId;
 
 	@Field(() => Date)
@@ -55,4 +60,12 @@ export class Notification {
 
 	@Field(() => Date)
 	updatedAt: Date;
+}
+
+@InputType()
+export class NotificationsInquiry {
+	@IsEnum(NotificationStatus)
+	@IsOptional()
+	@Field(() => NotificationStatus, { nullable: true })
+	notificationStatus?: NotificationStatus;
 }

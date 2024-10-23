@@ -49,4 +49,9 @@ export class NotificationInput {
 	@IsOptional()
 	@Field(() => String, { nullable: true })
 	articleId?: ObjectId;
+
+	@IsMongoId()
+	@IsOptional()
+	@Field(() => String, { nullable: true })
+	equipmentId?: ObjectId;
 }

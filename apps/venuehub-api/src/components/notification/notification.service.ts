@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
-import { Notification } from '../../libs/dto/notification/notification';
+import { Notification, NotificationsInquiry } from '../../libs/dto/notification/notification';
 import { NotificationInput } from '../../libs/dto/notification/notification.input';
 import { NotificationStatus } from '../../libs/enums/notification.enum';
 import { T } from '../../libs/types/common';
@@ -22,14 +22,20 @@ export class NotificationService {
 	}
 
 	// Retrieve notifications for a specific user (receiver)
-	// async getNotificationsForUser(receiverId: string, status?: NotificationStatus): Promise<Notification[]> {
-	// 	const query = { receiverId };
-	// 	if (status) {
-	// 		query['notificationStatus'] = status;
-	// 	}
+	public async getNotificationsForUser(receiverId: ObjectId, input?: NotificationsInquiry): Promise<Notification[]> {
+		const { notificationStatus } = input;
+		const match: T = {
+			receiverId: receiverId,
+		};
+		if (notificationStatus) match.notificationStatus = notificationStatus;
 
-	// 	return await this.notificationModel.find(query).sort({ createdAt: -1 }).exec();
-	// }
+		console.log('match : ', match);
+		const result = await this.notificationModel.find(match).exec();
+
+		console.log('result : ', result);
+
+		return result;
+	}
 
 	// Mark a notification as read
 	// async markNotificationAsRead(notificationId: string): Promise<Notification> {

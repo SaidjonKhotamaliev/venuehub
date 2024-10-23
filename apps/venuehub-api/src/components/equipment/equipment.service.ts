@@ -48,6 +48,8 @@ export class EquipmentService {
 				modifier: 1,
 			});
 
+			console.log('result:', result);
+
 			const { list: followers } = await this.followService.getMemberFollowers(input.memberId, {
 				page: 1,
 				limit: Number.MAX_SAFE_INTEGER,
@@ -59,7 +61,11 @@ export class EquipmentService {
 			}
 
 			for (const follower of followers) {
-				const notificationInput = this.createNotificationInputForCreate(input.memberId, follower._id, result);
+				const notificationInput = this.createNotificationInputForCreate(
+					input.memberId,
+					follower?.followerData?._id,
+					result,
+				);
 
 				await this.notificationService.createNotification(await notificationInput);
 			}
@@ -84,6 +90,7 @@ export class EquipmentService {
 			authorId: authorId,
 			receiverId,
 			notificationDesc: 'Check the new equipment.',
+			equipmentId: receiverEquipment._id,
 		};
 	}
 
