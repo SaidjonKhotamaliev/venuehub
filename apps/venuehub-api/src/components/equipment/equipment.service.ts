@@ -149,12 +149,13 @@ export class EquipmentService {
 	}
 
 	public async getEquipments(memberId: ObjectId, input: EquipmentsInquiry): Promise<Equipments> {
-		const match: T = { equipmentsStatus: EquipmentStatus.ACTIVE };
+		const match: T = { equipmentStatus: { $ne: EquipmentStatus.RETIRED } };
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		this.shapeMatchQuery(match, input);
 		console.log('match: ', match);
 
+		console.log('PASSED HERE 1');
 		const result = await this.equipmentModel
 			.aggregate([
 				{ $match: match },
