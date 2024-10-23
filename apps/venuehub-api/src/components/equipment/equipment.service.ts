@@ -230,7 +230,7 @@ export class EquipmentService {
 
 	public async likeTargetEquipment(memberId: ObjectId, likeRefId: ObjectId): Promise<Equipment> {
 		const target: Equipment = await this.equipmentModel
-			.findOne({ _id: likeRefId, equipmentStatus: EquipmentStatus.ACTIVE })
+			.findOne({ _id: likeRefId, equipmentStatus: { $ne: EquipmentStatus.RETIRED } })
 			.exec();
 
 		if (!target) throw new InternalServerErrorException(Message.NOT_DATA_FOUND);
