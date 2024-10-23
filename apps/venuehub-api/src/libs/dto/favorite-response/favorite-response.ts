@@ -12,11 +12,11 @@ import { Member, TotalCounter } from '../member/member';
 @ObjectType()
 export class FavoriteResponse {
 	@Field(() => [Properties], { nullable: true })
-	properties: Properties[];
+	properties?: Properties[];
 
 	@Field(() => [Equipments], { nullable: true })
-	equipments: Equipments[];
+	equipments?: Equipments[];
 
 	@Field(() => TotalCounter, { nullable: true })
-	metaCounter: TotalCounter;
+	metaCounter?: TotalCounter;
 }
