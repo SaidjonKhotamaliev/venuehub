@@ -90,7 +90,6 @@ export class EquipmentService {
 	public async getEquipment(memberId: ObjectId, equipmentId: ObjectId): Promise<Equipment> {
 		const search: T = {
 			_id: equipmentId,
-			equipmentStatus: EquipmentStatus.ACTIVE,
 		};
 
 		const targetEquipment: Equipment = await this.equipmentModel.findOne(search).lean().exec();
@@ -315,7 +314,7 @@ export class EquipmentService {
 
 		const search: T = {
 			_id: input._id,
-			equipmentStatus: EquipmentStatus.ACTIVE,
+			equipmentStatus: { $ne: EquipmentStatus.RETIRED },
 		};
 
 		if (equipmentStatus === EquipmentStatus.RENT) rentedAt = moment().toDate();
