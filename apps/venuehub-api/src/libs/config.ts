@@ -143,6 +143,15 @@ export const lookupFavorite = {
 	},
 };
 
+export const lookupFavoriteEquipments = {
+	$lookup: {
+		from: 'members',
+		localField: 'favoriteEquipments.memberId',
+		foreignField: '_id',
+		as: 'favoriteEquipments.memberData',
+	},
+};
+
 export const lookupVisit = {
 	$lookup: {
 		from: 'members',

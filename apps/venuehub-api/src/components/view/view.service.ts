@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { lookupVisit } from '../../libs/config';
-import { Equipments } from '../../libs/dto/equipment/equipment';
+import { Equipment, Equipments } from '../../libs/dto/equipment/equipment';
 import { OrdinaryInquiry } from '../../libs/dto/equipment/equipment.input';
 import { FavoriteResponse } from '../../libs/dto/favorite-response/favorite-response';
-import { Properties } from '../../libs/dto/property/property';
+import { Properties, Property } from '../../libs/dto/property/property';
 import { View } from '../../libs/dto/view/view';
 import { ViewInput } from '../../libs/dto/view/view.input';
 import { ViewGroup } from '../../libs/enums/view.enum';
@@ -57,7 +57,7 @@ export class ViewService {
 			])
 			.exec();
 
-		const visitedProperties: Properties[] = propertyData[0]?.list.map((ele) => ele.visitedProperty) || [];
+		const visitedProperties: Properties = propertyData[0]?.list.map((ele) => ele.visitedProperty) || [];
 		const propertyMetaCounter = propertyData[0]?.metaCounter[0]?.total || 0;
 
 		// Fetch visited equipments
@@ -84,7 +84,7 @@ export class ViewService {
 			])
 			.exec();
 
-		const visitedEquipments: Equipments[] = equipmentData[0]?.list.map((ele) => ele.visitedEquipment) || [];
+		const visitedEquipments: Equipments = equipmentData[0]?.list.map((ele) => ele.visitedEquipment) || [];
 		const equipmentMetaCounter = equipmentData[0]?.metaCounter[0]?.total || 0;
 
 		const totalMetaCounter = propertyMetaCounter + equipmentMetaCounter;

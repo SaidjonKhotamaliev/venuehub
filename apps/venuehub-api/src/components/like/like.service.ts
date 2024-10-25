@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
-import { lookupFavorite } from '../../libs/config';
-import { Equipments } from '../../libs/dto/equipment/equipment';
+import { lookupFavorite, lookupFavoriteEquipments } from '../../libs/config';
+import { Equipment, Equipments } from '../../libs/dto/equipment/equipment';
 import { OrdinaryInquiry } from '../../libs/dto/equipment/equipment.input';
 import { FavoriteResponse } from '../../libs/dto/favorite-response/favorite-response';
 import { Like, MeLiked } from '../../libs/dto/like/like';
 import { LikeInput } from '../../libs/dto/like/like.input';
-import { Properties } from '../../libs/dto/property/property';
+import { Properties, Property } from '../../libs/dto/property/property';
 import { Message } from '../../libs/enums/common.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { T } from '../../libs/types/common';
@@ -48,65 +48,6 @@ export class LikeService {
 		return result ? [{ memberId: memberId, likeRefId: likeRefId, myFavorite: true }] : [];
 	}
 
-	// public async getFavorite(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties | Equipments> {
-	// 	const { page, limit } = input;
-	// 	const match: T = { likeGroup: LikeGroup.PROPERTY, memberId: memberId };
-	// 	let data: T = await this.likeModel
-	// 		.aggregate([
-	// 			{ $match: match },
-	// 			{ $sort: { updatedAt: -1 } },
-	// 			{ $lookup: { from: 'properties', localField: 'likeRefId', foreignField: '_id', as: 'favoriteProperty' } },
-	// 			{ $unwind: '$favoriteProperty' },
-	// 			{
-	// 				$facet: {
-	// 					list: [
-	// 						{ $skip: (page - 1) * limit },
-	// 						{
-	// 							$limit: limit,
-	// 						},
-	// 						lookupFavorite,
-	// 						{ $unwind: '$favoriteProperty.memberData' },
-	// 					],
-	// 					metaCounter: [{ $count: 'total' }],
-	// 				},
-	// 			},
-	// 		])
-	// 		.exec();
-
-	// 	const result1: Properties | Equipments = { list: [], metaCounter: data[0].metaCounter };
-	// 	result1.list = data[0].list.map((ele) => ele.favoriteProperty);
-
-	// 	const matchEquipment: T = { likeGroup: LikeGroup.EQUIPMENT, memberId: memberId };
-	// 	data = await this.likeModel
-	// 		.aggregate([
-	// 			{ $match: matchEquipment },
-	// 			{ $sort: { updatedAt: -1 } },
-	// 			{ $lookup: { from: 'equipments', localField: 'likeRefId', foreignField: '_id', as: 'favoriteEquipments' } },
-	// 			{ $unwind: '$favoriteEquipments' },
-	// 			{
-	// 				$facet: {
-	// 					list: [
-	// 						{ $skip: (page - 1) * limit },
-	// 						{
-	// 							$limit: limit,
-	// 						},
-	// 						lookupFavorite,
-	// 						{ $unwind: '$favoriteEquipments.memberData' },
-	// 					],
-	// 					metaCounter: [{ $count: 'total' }],
-	// 				},
-	// 			},
-	// 		])
-	// 		.exec();
-
-	// 	const result2: Properties | Equipments = { list: [], metaCounter: data[0].metaCounter };
-	// 	result2.list = data[0].list.map((ele) => ele.favoriteEquipments);
-
-	// 	console.log('result:', result1);
-
-	// 	return result1;
-	// }
-
 	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<FavoriteResponse> {
 		const { page, limit } = input;
 
@@ -132,8 +73,9 @@ export class LikeService {
 			])
 			.exec();
 
-		const favoriteProperties: Properties[] = propertyData[0]?.list.map((ele) => ele.favoriteProperty) || [];
-		const propertyMetaCounter = propertyData[0]?.metaCounter[0]?.total || 0;
+		const favoriteProperties: Properties = { list: [], metaCounter: propertyData[0].metaCounter };
+		favoriteProperties.list = propertyData[0]?.list.map((ele) => ele.favoriteProperty) ?? [];
+		const propertyMetaCounter = propertyData[0]?.metaCounter[0]?.total ?? 0;
 
 		// Fetch favorite equipment
 		const matchEquipment: T = { likeGroup: LikeGroup.EQUIPMENT, memberId: memberId };
@@ -148,7 +90,7 @@ export class LikeService {
 						list: [
 							{ $skip: (page - 1) * limit },
 							{ $limit: limit },
-							lookupFavorite,
+							lookupFavoriteEquipments,
 							{ $unwind: '$favoriteEquipments.memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
@@ -157,11 +99,17 @@ export class LikeService {
 			])
 			.exec();
 
-		const favoriteEquipments: Equipments[] = equipmentData[0]?.list.map((ele) => ele.favoriteEquipments) || [];
-		const equipmentMetaCounter = equipmentData[0]?.metaCounter[0]?.total || 0;
+		const favoriteEquipments: Equipments = { list: [], metaCounter: equipmentData[0].metaCounter };
+
+		favoriteEquipments.list = equipmentData[0]?.list.map((ele) => ele.favoriteEquipments);
+		const equipmentMetaCounter = equipmentData[0]?.metaCounter[0].total ?? 0;
 
 		// Combine the metaCounter (for example, summing the totals)
-		const totalMetaCounter = propertyMetaCounter + equipmentMetaCounter;
+		let totalMetaCounter = { total: 0 };
+		totalMetaCounter.total = propertyMetaCounter + equipmentMetaCounter;
+		console.log('propertyMetaCounter DATA: ', propertyMetaCounter);
+		console.log('equipmentMetaCounter DATA: ', equipmentMetaCounter);
+		console.log('totalMetaCounter DATA: ', totalMetaCounter);
 
 		return {
 			properties: favoriteProperties,
