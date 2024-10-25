@@ -107,9 +107,6 @@ export class LikeService {
 		// Combine the metaCounter (for example, summing the totals)
 		let totalMetaCounter = { total: 0 };
 		totalMetaCounter.total = propertyMetaCounter + equipmentMetaCounter;
-		console.log('propertyMetaCounter DATA: ', propertyMetaCounter);
-		console.log('equipmentMetaCounter DATA: ', equipmentMetaCounter);
-		console.log('totalMetaCounter DATA: ', totalMetaCounter);
 
 		return {
 			properties: favoriteProperties,

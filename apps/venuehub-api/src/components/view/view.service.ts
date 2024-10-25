@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
-import { lookupVisit } from '../../libs/config';
+import { lookupVisit, lookupVisitEquipments } from '../../libs/config';
 import { Equipment, Equipments } from '../../libs/dto/equipment/equipment';
 import { OrdinaryInquiry } from '../../libs/dto/equipment/equipment.input';
 import { FavoriteResponse } from '../../libs/dto/favorite-response/favorite-response';
@@ -57,17 +57,19 @@ export class ViewService {
 			])
 			.exec();
 
-		const visitedProperties: Properties = propertyData[0]?.list.map((ele) => ele.visitedProperty) || [];
-		const propertyMetaCounter = propertyData[0]?.metaCounter[0]?.total || 0;
+		const visitedProperties: Properties = { list: [], metaCounter: propertyData[0].metaCounter };
+		visitedProperties.list = propertyData[0]?.list.map((ele) => ele.visitedProperty) || [];
+		const propertyMetaCounter = propertyData[0]?.metaCounter[0]?.total ?? 0;
 
+		console.log('data1: ', visitedProperties);
 		// Fetch visited equipments
 		const matchEquipments: T = { viewGroup: ViewGroup.EQUIPMENT, memberId: memberId };
 		const equipmentData: T = await this.viewModel
 			.aggregate([
 				{ $match: matchEquipments },
 				{ $sort: { updatedAt: -1 } },
-				{ $lookup: { from: 'equipments', localField: 'viewRefId', foreignField: '_id', as: 'visitedEquipments' } },
-				{ $unwind: '$visitedEquipments' },
+				{ $lookup: { from: 'equipments', localField: 'viewRefId', foreignField: '_id', as: 'visitedEquipment' } },
+				{ $unwind: '$visitedEquipment' },
 				{
 					$facet: {
 						list: [
@@ -75,8 +77,8 @@ export class ViewService {
 							{
 								$limit: limit,
 							},
-							lookupVisit,
-							{ $unwind: '$visitedEquipments.memberData' },
+							lookupVisitEquipments,
+							{ $unwind: '$visitedEquipment.memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -84,10 +86,13 @@ export class ViewService {
 			])
 			.exec();
 
-		const visitedEquipments: Equipments = equipmentData[0]?.list.map((ele) => ele.visitedEquipment) || [];
-		const equipmentMetaCounter = equipmentData[0]?.metaCounter[0]?.total || 0;
+		const visitedEquipments: Equipments = { list: [], metaCounter: propertyData[0].metaCounter };
+		visitedEquipments.list = equipmentData[0]?.list.map((ele) => ele.visitedEquipment) || [];
+		const equipmentMetaCounter = equipmentData[0]?.metaCounter[0]?.total ?? 0;
+		console.log('data1: ', visitedEquipments);
 
-		const totalMetaCounter = propertyMetaCounter + equipmentMetaCounter;
+		let totalMetaCounter = { total: 0 };
+		totalMetaCounter.total = propertyMetaCounter + equipmentMetaCounter;
 
 		return {
 			properties: visitedProperties,
