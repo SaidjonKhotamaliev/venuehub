@@ -50,11 +50,25 @@ export class NotificationService {
 	}
 
 	// Mark all notifications as read for a specific user
-	public async updateMemberAllNotifications(memberId: ObjectId): Promise<UpdateResult> {
-		return await this.notificationModel.updateMany(
-			{ receiverId: memberId, notificationStatus: NotificationStatus.WAIT },
-			{ $set: { notificationStatus: NotificationStatus.READ } },
-		);
+	public async updateMemberAllNotifications(memberId: ObjectId): Promise<Notification[]> {
+		// Fetch notifications to be updated
+		const notifications = await this.notificationModel
+			.find({
+				receiverId: memberId,
+			})
+			.lean()
+			.exec();
+
+		// Update the status in the background
+		await this.notificationModel
+			.updateMany({ receiverId: memberId }, { $set: { notificationStatus: NotificationStatus.READ } }, { new: true })
+			.exec();
+
+		// Return the original documents
+
+		notifications.map((data) => (data.notificationStatus = NotificationStatus.READ));
+		console.log('notifications: ', notifications);
+		return notifications;
 	}
 
 	// Delete a notification by ID

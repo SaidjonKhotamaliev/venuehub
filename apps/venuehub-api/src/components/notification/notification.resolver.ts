@@ -33,10 +33,9 @@ export class NotificationResolver {
 	}
 
 	@UseGuards(AuthGuard)
-	@Mutation((returns) => Boolean)
-	public async updateMemberAllNotifications(@AuthMember('_id') memberId: ObjectId): Promise<Boolean> {
+	@Mutation((returns) => [Notification])
+	public async updateMemberAllNotifications(@AuthMember('_id') memberId: ObjectId): Promise<Notification[]> {
 		console.log('Mutation, updateMemberAllNotifications');
-		await this.notificationService.updateMemberAllNotifications(memberId);
-		return true;
+		return await this.notificationService.updateMemberAllNotifications(memberId);
 	}
 }
