@@ -7,6 +7,7 @@ import { NotificationInput } from '../../libs/dto/notification/notification.inpu
 import { NotificationUpdate } from '../../libs/dto/notification/notification.update';
 import { NotificationStatus } from '../../libs/enums/notification.enum';
 import { T } from '../../libs/types/common';
+import { UpdateResult } from 'mongodb';
 
 @Injectable()
 export class NotificationService {
@@ -49,12 +50,12 @@ export class NotificationService {
 	}
 
 	// Mark all notifications as read for a specific user
-	// async markAllAsRead(receiverId: string): Promise<{ nModified: number }> {
-	// 	return await this.notificationModel.updateMany(
-	// 		{ receiverId, notificationStatus: NotificationStatus.WAIT },
-	// 		{ $set: { notificationStatus: NotificationStatus.READ } },
-	// 	);
-	// }
+	public async updateMemberAllNotifications(memberId: ObjectId): Promise<UpdateResult> {
+		return await this.notificationModel.updateMany(
+			{ receiverId: memberId, notificationStatus: NotificationStatus.WAIT },
+			{ $set: { notificationStatus: NotificationStatus.READ } },
+		);
+	}
 
 	// Delete a notification by ID
 	// async deleteNotification(notificationId: string): Promise<{ deletedCount?: number }> {

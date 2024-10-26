@@ -6,6 +6,7 @@ import { NotificationUpdate } from '../../libs/dto/notification/notification.upd
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { NotificationService } from './notification.service';
+import { UpdateResult } from 'mongodb';
 
 @Resolver()
 export class NotificationResolver {
@@ -29,5 +30,13 @@ export class NotificationResolver {
 	): Promise<Notification> {
 		console.log('Mutation, updateMemberNotification');
 		return await this.notificationService.updateMemberNotification(memberId, input);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation((returns) => Boolean)
+	public async updateMemberAllNotifications(@AuthMember('_id') memberId: ObjectId): Promise<Boolean> {
+		console.log('Mutation, updateMemberAllNotifications');
+		await this.notificationService.updateMemberAllNotifications(memberId);
+		return true;
 	}
 }
