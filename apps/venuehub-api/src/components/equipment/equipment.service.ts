@@ -48,8 +48,6 @@ export class EquipmentService {
 				modifier: 1,
 			});
 
-			console.log('result:', result);
-
 			const { list: followers } = await this.followService.getMemberFollowers(input.memberId, {
 				page: 1,
 				limit: Number.MAX_SAFE_INTEGER,
@@ -120,10 +118,6 @@ export class EquipmentService {
 	public async updateEquipment(memberId: ObjectId, input: EquipmentUpdate): Promise<Equipment> {
 		let { equipmentStatus } = input;
 
-		console.log('input: ', input);
-
-		console.log('PASSED HERE 1');
-
 		const search: T = {
 			_id: input._id,
 			memberId: memberId,
@@ -141,15 +135,12 @@ export class EquipmentService {
 			input.maintanencedAt = maintanencedAt;
 		}
 
-		console.log('PASSED HERE 2');
 		const result = await this.equipmentModel.findOneAndUpdate(search, input, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
 		if (input.rentedAt || input.deletedAt || input.maintanencedAt) {
 			await this.memberService.memberStatsEditor({ _id: memberId, targetKey: 'memberEquipments', modifier: -1 });
 		}
-
-		console.log('result +++++: ', result);
 
 		return result;
 	}
@@ -161,7 +152,6 @@ export class EquipmentService {
 		this.shapeMatchQuery(match, input);
 		console.log('match: ', match);
 
-		console.log('PASSED HERE 1');
 		const result = await this.equipmentModel
 			.aggregate([
 				{ $match: match },
@@ -310,8 +300,6 @@ export class EquipmentService {
 			.exec();
 
 		if (!result.length) throw new InternalServerErrorException(Message.NOT_DATA_FOUND);
-
-		console.log(result);
 
 		return result[0];
 	}

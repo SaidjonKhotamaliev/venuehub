@@ -53,7 +53,11 @@ export class BoardArticleService {
 			}
 
 			for (const follower of followers) {
-				const notificationInput = this.createNotificationInputForCreate(input.memberId, follower._id, result);
+				const notificationInput = this.createNotificationInputForCreate(
+					input.memberId,
+					follower?.followerData?._id,
+					result,
+				);
 
 				console.log(follower.followerId);
 
@@ -75,11 +79,11 @@ export class BoardArticleService {
 		const member: Member = await this.memberService.getMemberIdOfMember(authorId);
 		return {
 			notificationType: NotificationType.CREATE,
-			notificationGroup: NotificationGroup.PROPERTY,
+			notificationGroup: NotificationGroup.ARTICLE,
 			notificationTitle: `${member.memberNick} created a new article: ${receiverArticle.articleTitle}`,
 			authorId: authorId,
 			receiverId,
-			notificationDesc: 'Check the new article.',
+			notificationDesc: 'Check out the new article.',
 			articleId: receiverArticle._id,
 		};
 	}

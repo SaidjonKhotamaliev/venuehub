@@ -60,7 +60,11 @@ export class PropertyService {
 			}
 
 			for (const follower of followers) {
-				const notificationInput = this.createNotificationInputForCreate(input.memberId, follower._id, result);
+				const notificationInput = this.createNotificationInputForCreate(
+					input.memberId,
+					follower?.followerData?._id,
+					result,
+				);
 
 				console.log(follower.followerId);
 
@@ -87,7 +91,7 @@ export class PropertyService {
 			authorId: authorId,
 			receiverId,
 			propertyId: receiverProperty._id,
-			notificationDesc: 'Check the new property.',
+			notificationDesc: 'Check out the new property.',
 		};
 	}
 
