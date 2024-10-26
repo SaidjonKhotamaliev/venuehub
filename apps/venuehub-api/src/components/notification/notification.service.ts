@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -72,7 +72,16 @@ export class NotificationService {
 	}
 
 	// Delete a notification by ID
-	// async deleteNotification(notificationId: string): Promise<{ deletedCount?: number }> {
-	// 	return await this.notificationModel.deleteOne({ _id: notificationId });
-	// }
+	public async deleteMemberNotification(memberId: ObjectId, input: String): Promise<Boolean> {
+		try {
+			const notificationId = shapeIntoMongoObjectId(input);
+			const result = await this.notificationModel.findOneAndDelete({ _id: notificationId, receiverId: memberId });
+
+			if (result === null) throw new BadRequestException('Delete failed!');
+			return true;
+		} catch (err) {
+			console.log('Error, deleteMemberNotification');
+			throw new BadRequestException(err);
+		}
+	}
 }

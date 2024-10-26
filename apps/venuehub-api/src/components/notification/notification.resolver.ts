@@ -38,4 +38,14 @@ export class NotificationResolver {
 		console.log('Mutation, updateMemberAllNotifications');
 		return await this.notificationService.updateMemberAllNotifications(memberId);
 	}
+
+	@UseGuards(AuthGuard)
+	@Mutation((returns) => Boolean)
+	public async deleteMemberNotification(
+		@Args('input') input: String,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Boolean> {
+		console.log('Mutation, deleteMemberNotification');
+		return await this.notificationService.deleteMemberNotification(memberId, input);
+	}
 }
