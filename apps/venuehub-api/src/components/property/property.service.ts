@@ -86,6 +86,7 @@ export class PropertyService {
 			notificationTitle: `${member.memberNick} created a new property:  ${receiverProperty.propertyTitle}`,
 			authorId: authorId,
 			receiverId,
+			propertyId: receiverProperty._id,
 			notificationDesc: 'Check the new property.',
 		};
 	}

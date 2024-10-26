@@ -80,6 +80,7 @@ export class BoardArticleService {
 			authorId: authorId,
 			receiverId,
 			notificationDesc: 'Check the new article.',
+			articleId: receiverArticle._id,
 		};
 	}
 

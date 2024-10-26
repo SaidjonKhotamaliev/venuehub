@@ -89,8 +89,8 @@ export class EquipmentService {
 			notificationTitle: `${member.memberNick} created a new equipment:  ${receiverEquipment.equipmentTitle}`,
 			authorId: authorId,
 			receiverId,
-			notificationDesc: 'Check the new equipment.',
 			equipmentId: receiverEquipment._id,
+			notificationDesc: 'Check the new equipment.',
 		};
 	}
 
