@@ -4,6 +4,7 @@ import { Model, ObjectId } from 'mongoose';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { Notification, NotificationsInquiry } from '../../libs/dto/notification/notification';
 import { NotificationInput } from '../../libs/dto/notification/notification.input';
+import { NotificationUpdate } from '../../libs/dto/notification/notification.update';
 import { NotificationStatus } from '../../libs/enums/notification.enum';
 import { T } from '../../libs/types/common';
 
@@ -38,13 +39,14 @@ export class NotificationService {
 	}
 
 	// Mark a notification as read
-	// async markNotificationAsRead(notificationId: string): Promise<Notification> {
-	// 	return await this.notificationModel.findByIdAndUpdate(
-	// 		notificationId,
-	// 		{ notificationStatus: NotificationStatus.READ },
-	// 		{ new: true },
-	// 	);
-	// }
+	public async updateMemberNotification(memberId: ObjectId, input: NotificationUpdate): Promise<Notification> {
+		const id: ObjectId = shapeIntoMongoObjectId(input._id);
+		return await this.notificationModel.findByIdAndUpdate(
+			{ receiverId: memberId, _id: id },
+			{ notificationStatus: NotificationStatus.READ },
+			{ new: true },
+		);
+	}
 
 	// Mark all notifications as read for a specific user
 	// async markAllAsRead(receiverId: string): Promise<{ nModified: number }> {
