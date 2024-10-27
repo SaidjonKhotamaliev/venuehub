@@ -3,7 +3,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ObjectId } from 'mongoose';
 import { Notice } from '../../libs/dto/notice/notice';
 import { NoticeInput } from '../../libs/dto/notice/notice.input';
-import { NoticeInquiry } from '../../libs/dto/notice/notice.inquiry';
+import { NoticeInquiry, NoticeInquiryAgent, NoticeUpdate } from '../../libs/dto/notice/notice.inquiry';
 import { MemberType } from '../../libs/enums/member.enum';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -32,5 +32,27 @@ export class NoticeResolver {
 	): Promise<Notice[]> {
 		console.log('Query, getNotices');
 		return await this.noticeService.getNotices(input);
+	}
+
+	@Roles(MemberType.AGENT, MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Query(() => [Notice])
+	public async getNoticesForAgentAndAdmins(
+		@Args('input') input: NoticeInquiryAgent,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Notice[]> {
+		console.log('Query, getNoticesForAgentAndAdmins');
+		return await this.noticeService.getNoticesForAgentAndAdmins(input);
+	}
+
+	@Roles(MemberType.AGENT, MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Mutation(() => Notice)
+	public async updateNotice(
+		@Args('input') input: NoticeUpdate,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Notice> {
+		console.log('Mutation, updateNotice');
+		return await this.noticeService.updateNotice(input);
 	}
 }

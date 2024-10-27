@@ -1,9 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { Notice } from '../../libs/dto/notice/notice';
 import { NoticeInput } from '../../libs/dto/notice/notice.input';
-import { NoticeInquiry } from '../../libs/dto/notice/notice.inquiry';
+import { NoticeInquiry, NoticeInquiryAgent, NoticeUpdate } from '../../libs/dto/notice/notice.inquiry';
 import { Message } from '../../libs/enums/common.enum';
 import { NotificationService } from '../notification/notification.service';
 
@@ -27,7 +27,28 @@ export class NoticeService {
 
 	public async getNotices(input: NoticeInquiry): Promise<Notice[]> {
 		const result = await this.noticeModel.find(input).exec();
+		if (!result) {
+			throw new InternalServerErrorException('There is no any Notices available!');
+		}
 
+		return result;
+	}
+
+	public async getNoticesForAgentAndAdmins(input: NoticeInquiryAgent): Promise<Notice[]> {
+		const result = await this.noticeModel.find(input).exec();
+		if (!result) {
+			throw new InternalServerErrorException('There is no any Notices available!');
+		}
+		return result;
+	}
+
+	public async updateNotice(input: NoticeUpdate): Promise<Notice> {
+		const id: ObjectId = input._id;
+
+		const result = await this.noticeModel.findOneAndUpdate({ _id: id }, input, { new: true }).exec();
+		if (!result) {
+			throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		}
 		return result;
 	}
 }
