@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { NoticeCategory, NoticeStatus } from '../libs/enums/notice.enum';
+import { NoticeCategory, NoticeStatus, NoticeTopic } from '../libs/enums/notice.enum';
 
 const NoticeSchema = new Schema(
 	{
@@ -15,6 +15,12 @@ const NoticeSchema = new Schema(
 			default: NoticeStatus.ACTIVE,
 		},
 
+		noticeTopic: {
+			type: String,
+			enum: NoticeTopic,
+			required: true,
+		},
+
 		noticeTitle: {
 			type: String,
 			required: true,
@@ -24,7 +30,7 @@ const NoticeSchema = new Schema(
 			type: String,
 			required: true,
 		},
-		
+
 		memberId: {
 			type: Schema.Types.ObjectId,
 			required: true,

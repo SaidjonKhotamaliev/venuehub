@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { IsEnum, IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 import { ObjectId } from 'mongoose';
-import { NoticeCategory, NoticeStatus } from '../../enums/notice.enum';
+import { NoticeCategory, NoticeStatus, NoticeTopic } from '../../enums/notice.enum';
 
 @ObjectType()
 export class Notice {
@@ -17,6 +17,11 @@ export class Notice {
 	@IsNotEmpty()
 	@Field(() => NoticeStatus)
 	noticeStatus: NoticeStatus;
+
+	@IsEnum(NoticeStatus)
+	@IsNotEmpty()
+	@Field(() => NoticeTopic)
+	noticeTopic: NoticeTopic;
 
 	@IsString()
 	@IsNotEmpty()
