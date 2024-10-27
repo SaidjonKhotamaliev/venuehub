@@ -9,6 +9,7 @@ import { FollowModule } from './follow/follow.module';
 import { BoardArticleModule } from './board-article/board-article.module';
 import { NotificationModule } from './notification/notification.module';
 import { EquipmentModule } from './equipment/equipment.module';
+import { NoticeModule } from './notice/notice.module';
 
 @Module({
 	imports: [
@@ -22,6 +23,7 @@ import { EquipmentModule } from './equipment/equipment.module';
 		CommentModule,
 		NotificationModule,
 		EquipmentModule,
+		NoticeModule,
 	],
 	providers: [],
 })

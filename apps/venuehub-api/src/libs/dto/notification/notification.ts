@@ -5,6 +5,9 @@ import { NotificationType, NotificationGroup, NotificationStatus } from '../../e
 
 @ObjectType()
 export class Notification {
+	@Field(() => String)
+	_id: ObjectId;
+
 	@IsEnum(NotificationType)
 	@IsNotEmpty()
 	@Field(() => NotificationType)
