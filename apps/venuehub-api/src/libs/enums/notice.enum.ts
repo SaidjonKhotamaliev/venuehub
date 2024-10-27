@@ -17,3 +17,18 @@ export enum NoticeStatus {
 registerEnumType(NoticeStatus, {
 	name: 'NoticeStatus',
 });
+
+export enum NoticeTopic {
+	PROPERTY = 'PROPERTY',
+	EQUIPMENT = 'EQUIPMENT',
+	PAYMENT = 'PAYMENT',
+	BUYERS = 'BUYERS',
+	AGENTS = 'AGENTS',
+	MEMBERSHIP = 'MEMBERSHIP',
+	COMMUNITY = 'COMMUNITY',
+	OTHER = 'OTHER',
+}
+
+registerEnumType(NoticeTopic, {
+	name: 'NoticeTopic',
+});
