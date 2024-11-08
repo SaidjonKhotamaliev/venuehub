@@ -40,7 +40,7 @@ export class EquipmentInput {
 	constructedAt?: Date;
 }
 @InputType()
-export class PricesRange {
+export class PricesRangeEquipment {
 	@Field(() => Int)
 	start: number;
 
@@ -49,7 +49,7 @@ export class PricesRange {
 }
 
 @InputType()
-export class PeriodsRange {
+export class PeriodsRangeEquipment {
 	@Field(() => Date)
 	start: Date;
 
@@ -68,12 +68,12 @@ export class EIsearch {
 	typeList?: EquipmentType[];
 
 	@IsOptional()
-	@Field(() => PricesRange, { nullable: true })
-	pricesRange?: PricesRange;
+	@Field(() => PricesRangeEquipment, { nullable: true })
+	pricesRangeEquipment?: PricesRangeEquipment;
 
 	@IsOptional()
-	@Field(() => PeriodsRange, { nullable: true })
-	periodsRange?: PeriodsRange;
+	@Field(() => PeriodsRangeEquipment, { nullable: true })
+	periodsRangeEquipment?: PeriodsRangeEquipment;
 
 	@IsOptional()
 	@Field(() => String, { nullable: true })

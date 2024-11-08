@@ -177,12 +177,13 @@ export class EquipmentService {
 	}
 
 	private shapeMatchQuery(match: T, input: EquipmentsInquiry): void {
-		const { memberId, typeList, periodsRange, pricesRange, text } = input.search;
+		const { memberId, typeList, periodsRangeEquipment, pricesRangeEquipment, text } = input.search;
 		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
 		if (typeList && typeList.length) match.equipmentType = { $in: typeList };
 
-		if (periodsRange) match.createdAt = { $gte: periodsRange.start, $lte: periodsRange.end };
-		if (pricesRange) match.equipmentRentPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
+		if (periodsRangeEquipment) match.createdAt = { $gte: periodsRangeEquipment.start, $lte: periodsRangeEquipment.end };
+		if (pricesRangeEquipment)
+			match.equipmentRentPrice = { $gte: pricesRangeEquipment.start, $lte: pricesRangeEquipment.end };
 		if (text) match.equipmentTitle = { $regex: new RegExp(text, 'i') };
 	}
 
