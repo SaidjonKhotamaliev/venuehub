@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
-import { lookupAuthMemberLiked } from '../../libs/config';
+import { lookupAuthMemberFollowed, lookupAuthMemberLiked } from '../../libs/config';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { Member, Members } from '../../libs/dto/member/member';
@@ -117,13 +117,19 @@ export class MemberService {
 				{ $sort: sort },
 				{
 					$facet: {
-						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }, lookupAuthMemberLiked(memberId)],
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							lookupAuthMemberLiked(memberId),
+							lookupAuthMemberFollowed({ followerId: memberId, followingId: '$_id' }),
+						],
 						metaCounter: [{ $count: `total` }],
 					},
 				},
 			])
 			.exec();
 		if (!result.length) throw new InternalServerErrorException(Message.NOT_DATA_FOUND);
+		console.log('result: ', result[0]);
 
 		return result[0];
 	}
