@@ -38,10 +38,10 @@ export class Member {
 	@Field(() => String, { nullable: true })
 	memberDesc?: string;
 
-	@Field(() => Int)
+	@Field(() => Int, { nullable: true })
 	memberProperties?: number;
 
-	@Field(() => Int)
+	@Field(() => Int, { nullable: true })
 	memberEquipments?: number;
 
 	@Field(() => Int)
