@@ -143,8 +143,6 @@ export class PropertyService {
 			await this.memberService.memberStatsEditor({ _id: memberId, targetKey: 'memberProperties', modifier: -1 });
 		}
 
-		console.log('result +++++: ', result);
-
 		return result;
 	}
 
@@ -153,7 +151,6 @@ export class PropertyService {
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		this.shapeMatchQuery(match, input);
-		console.log('match: ', match);
 
 		const result = await this.propertyModel
 			.aggregate([
