@@ -38,7 +38,7 @@ export class FollowService {
 		await this.memberService.memberStatsEditor({ _id: followerId, targetKey: 'memberFollowings', modifier: 1 });
 		await this.memberService.memberStatsEditor({ _id: followingId, targetKey: 'memberFollowers', modifier: 1 });
 
-		const notificationInput = this.createNotificationInput(followingId, followerId);
+		const notificationInput = await this.createNotificationInput(followingId, followerId);
 
 		await this.notificationService.createNotification(await notificationInput);
 

@@ -53,7 +53,7 @@ export class BoardArticleService {
 			}
 
 			for (const follower of followers) {
-				const notificationInput = this.createNotificationInputForCreate(
+				const notificationInput = await this.createNotificationInputForCreate(
 					input.memberId,
 					follower?.followerData?._id,
 					result,
@@ -188,7 +188,7 @@ export class BoardArticleService {
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 
 		if (modifier === 1) {
-			const notificationInput = this.createNotificationInputForLike(
+			const notificationInput = await this.createNotificationInputForLike(
 				target,
 				NotificationGroup.ARTICLE,
 				memberId,
@@ -210,6 +210,7 @@ export class BoardArticleService {
 		return {
 			notificationType: NotificationType.LIKE,
 			receiverId,
+			articleId: receiverArticle._id,
 			notificationGroup,
 			notificationTitle: `${member.memberNick} liked your ${receiverArticle.articleTitle} board article!`,
 			authorId,

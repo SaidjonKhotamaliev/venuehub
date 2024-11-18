@@ -59,7 +59,7 @@ export class EquipmentService {
 			}
 
 			for (const follower of followers) {
-				const notificationInput = this.createNotificationInputForCreate(
+				const notificationInput = await this.createNotificationInputForCreate(
 					input.memberId,
 					follower?.followerData?._id,
 					result,
@@ -244,7 +244,7 @@ export class EquipmentService {
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 
 		if (modifier === 1) {
-			const notificationInput = this.createNotificationInputForLike(
+			const notificationInput = await this.createNotificationInputForLike(
 				target,
 				NotificationGroup.EQUIPMENT,
 				memberId,
@@ -267,6 +267,7 @@ export class EquipmentService {
 			notificationType: NotificationType.LIKE,
 			receiverId,
 			notificationGroup,
+			equipmentId: receiverEquipment._id,
 			notificationTitle: `${member.memberNick} liked your ${receiverEquipment.equipmentTitle} equipment!`,
 			authorId,
 			notificationDesc: 'Check out the new like.',

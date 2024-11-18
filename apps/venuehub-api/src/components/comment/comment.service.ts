@@ -50,7 +50,7 @@ export class CommentService {
 
 				const receiverProperty: Property = await this.propertyService.getMemberOfProperty(input.commentRefId);
 				if (receiverProperty) {
-					const notificationInput = this.createNotificationInput(
+					const notificationInput = await this.createNotificationInput(
 						input,
 						receiverProperty.memberId,
 						receiverProperty._id,
@@ -70,7 +70,7 @@ export class CommentService {
 
 				const receiverArticle: BoardArticle = await this.boardArticleService.getMemberIdOfArticle(input.commentRefId);
 				if (receiverArticle) {
-					const notificationInput = this.createNotificationInput(
+					const notificationInput = await this.createNotificationInput(
 						input,
 						receiverArticle.memberId,
 						undefined,
@@ -90,7 +90,7 @@ export class CommentService {
 
 				const receiverMember: Member = await this.memberService.getMemberIdOfMember(input.commentRefId);
 				if (receiverMember) {
-					const notificationInput = this.createNotificationInput(
+					const notificationInput = await this.createNotificationInput(
 						input,
 						receiverMember._id,
 						undefined,

@@ -150,7 +150,7 @@ export class MemberService {
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 
 		if (modifier === 1) {
-			const notificationInput = this.createNotificationInput(target._id, NotificationGroup.MEMBER, memberId);
+			const notificationInput = await this.createNotificationInput(target._id, NotificationGroup.MEMBER, memberId);
 			await this.notificationService.createNotification(await notificationInput);
 		}
 

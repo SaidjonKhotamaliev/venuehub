@@ -31,12 +31,9 @@ export class NotificationService {
 		};
 		if (notificationStatus) match.notificationStatus = notificationStatus;
 
-		console.log('match : ', match);
 		const result = await this.notificationModel.find(match).exec();
 
-		console.log('result : ', result);
-
-		return result;
+		return result.reverse();
 	}
 
 	// Mark a notification as read

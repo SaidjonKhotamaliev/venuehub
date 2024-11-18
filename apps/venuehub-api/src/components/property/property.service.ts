@@ -59,14 +59,16 @@ export class PropertyService {
 				return result;
 			}
 
+			console.log('property:', result);
+
 			for (const follower of followers) {
-				const notificationInput = this.createNotificationInputForCreate(
+				const notificationInput = await this.createNotificationInputForCreate(
 					input.memberId,
 					follower?.followerData?._id,
 					result,
 				);
 
-				console.log(follower.followerId);
+				console.log('notificationInput: ', notificationInput);
 
 				await this.notificationService.createNotification(await notificationInput);
 			}
@@ -250,7 +252,7 @@ export class PropertyService {
 		if (!result) throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
 
 		if (modifier === 1) {
-			const notificationInput = this.createNotificationInputForLike(
+			const notificationInput = await this.createNotificationInputForLike(
 				target,
 				NotificationGroup.PROPERTY,
 				memberId,
@@ -272,6 +274,7 @@ export class PropertyService {
 		return {
 			notificationType: NotificationType.LIKE,
 			receiverId,
+			propertyId: receiverProperty._id,
 			notificationGroup,
 			notificationTitle: `${member.memberNick} liked your ${receiverProperty.propertyTitle} property!`,
 			authorId,
