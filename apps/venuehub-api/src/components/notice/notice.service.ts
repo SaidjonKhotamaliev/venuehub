@@ -5,6 +5,7 @@ import { Notice } from '../../libs/dto/notice/notice';
 import { NoticeInput } from '../../libs/dto/notice/notice.input';
 import { NoticeInquiry, NoticeInquiryAgent, NoticeUpdate } from '../../libs/dto/notice/notice.inquiry';
 import { Message } from '../../libs/enums/common.enum';
+import { NoticeStatus } from '../../libs/enums/notice.enum';
 import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
@@ -26,7 +27,9 @@ export class NoticeService {
 	}
 
 	public async getNotices(input: NoticeInquiry): Promise<Notice[]> {
-		const result = await this.noticeModel.find(input).exec();
+		const newInput = { noticeCategory: input.noticeCategory, noticeStatus: { $ne: NoticeStatus.DELETE } };
+		const result = await this.noticeModel.find(newInput).exec();
+
 		if (!result) {
 			throw new InternalServerErrorException('There is no any Notices available!');
 		}

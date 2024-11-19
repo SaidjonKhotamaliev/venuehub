@@ -39,7 +39,7 @@ export class NoticeInquiry {
 	noticeCategory: NoticeCategory;
 
 	@IsOptional()
-	@Field(() => NoticeStatus, { nullable: true, defaultValue: NoticeStatus.ACTIVE })
+	@Field(() => NoticeStatus, { nullable: true })
 	noticeStatus?: NoticeStatus;
 }
 
