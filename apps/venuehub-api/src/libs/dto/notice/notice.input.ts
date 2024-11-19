@@ -17,8 +17,8 @@ export class NoticeInput {
 
 	@IsEnum(NoticeTopic)
 	@IsNotEmpty()
-	@Field(() => NoticeTopic)
-	noticeTopic: NoticeTopic;
+	@Field(() => NoticeTopic, { defaultValue: NoticeTopic.PROPERTY, nullable: true })
+	noticeTopic?: NoticeTopic;
 
 	@IsString()
 	@IsNotEmpty()
