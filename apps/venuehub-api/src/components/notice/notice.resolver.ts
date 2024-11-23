@@ -15,7 +15,7 @@ import { NoticeService } from './notice.service';
 export class NoticeResolver {
 	constructor(private readonly noticeService: NoticeService) {}
 
-	@Roles(MemberType.AGENT)
+	@Roles(MemberType.AGENT, MemberType.ADMIN)
 	@UseGuards(RolesGuard)
 	@Mutation(() => Notice)
 	public async createNotice(@Args('input') input: NoticeInput, @AuthMember('_id') memberId: ObjectId): Promise<Notice> {
