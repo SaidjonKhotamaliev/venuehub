@@ -1,5 +1,3 @@
-version: '3.3'
-
 services:
   venuehub-api:
     container_name: venuehub-api
