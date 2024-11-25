@@ -198,7 +198,7 @@ export class EquipmentService {
 	public async getAgentEquipments(memberId: ObjectId, input: AgentEquipmentsInquiry): Promise<Equipments> {
 		const { equipmentStatus } = input.search;
 
-		const match: T = { memberId: memberId, propertyStatus: equipmentStatus ?? { $ne: EquipmentStatus.RETIRED } };
+		const match: T = { memberId: memberId, equipmentStatus: equipmentStatus ?? { $ne: EquipmentStatus.RETIRED } };
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		const result = await this.equipmentModel

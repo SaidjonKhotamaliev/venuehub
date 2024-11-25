@@ -21,7 +21,7 @@ export class MemberResolver {
 	constructor(private readonly memberService: MemberService) {}
 
 	@Mutation(() => Member)
-	public async signup(@Args('envelopee') input: MemberInput): Promise<Member> {
+	public async signup(@Args('input') input: MemberInput): Promise<Member> {
 		console.log('Mutation, signup');
 		return await this.memberService.signup(input);
 	}
@@ -56,6 +56,7 @@ export class MemberResolver {
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Member> {
 		console.log('Mutation, updateMember');
+
 		delete input._id;
 		return await this.memberService.updateMember(memberId, input);
 	}

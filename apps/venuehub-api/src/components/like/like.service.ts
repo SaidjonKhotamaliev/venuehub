@@ -102,7 +102,8 @@ export class LikeService {
 		const favoriteEquipments: Equipments = { list: [], metaCounter: equipmentData[0].metaCounter };
 
 		favoriteEquipments.list = equipmentData[0]?.list.map((ele) => ele.favoriteEquipments);
-		const equipmentMetaCounter = equipmentData[0]?.metaCounter[0].total ?? 0;
+		console.log('total: ', equipmentData);
+		const equipmentMetaCounter = equipmentData[0]?.metaCounter?.total ?? 0;
 
 		// Combine the metaCounter (for example, summing the totals)
 		let totalMetaCounter = { total: 0 };
