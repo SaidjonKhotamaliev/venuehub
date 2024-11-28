@@ -345,7 +345,7 @@ export class EquipmentService {
 		return await this.equipmentModel.findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true }).exec();
 	}
 
-	public async getMemberOfProperty(input: ObjectId): Promise<Equipment> {
+	public async getMemberOfEquipment(input: ObjectId): Promise<Equipment> {
 		return await this.equipmentModel.findById(input);
 	}
 }

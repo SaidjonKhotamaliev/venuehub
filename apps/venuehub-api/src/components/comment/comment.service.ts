@@ -6,6 +6,7 @@ import { BoardArticle } from '../../libs/dto/board-article/board-article';
 import { Comment, Comments } from '../../libs/dto/comment/comment';
 import { CommentInput, CommentsInquiry } from '../../libs/dto/comment/comment.input';
 import { CommentUpdate } from '../../libs/dto/comment/comment.update';
+import { Equipment } from '../../libs/dto/equipment/equipment';
 import { Member } from '../../libs/dto/member/member';
 import { NotificationInput } from '../../libs/dto/notification/notification.input';
 import { Property } from '../../libs/dto/property/property';
@@ -14,6 +15,7 @@ import { Direction, Message } from '../../libs/enums/common.enum';
 import { NotificationGroup, NotificationStatus, NotificationType } from '../../libs/enums/notification.enum';
 import { T } from '../../libs/types/common';
 import { BoardArticleService } from '../board-article/board-article.service';
+import { EquipmentService } from '../equipment/equipment.service';
 import { MemberService } from '../member/member.service';
 import { NotificationService } from '../notification/notification.service';
 import { PropertyService } from '../property/property.service';
@@ -24,6 +26,7 @@ export class CommentService {
 		@InjectModel('Comment') private readonly commentModel: Model<Comment>,
 		private readonly memberService: MemberService,
 		private readonly propertyService: PropertyService,
+		private readonly equipmentService: EquipmentService,
 		private readonly boardArticleService: BoardArticleService,
 		private readonly notificationService: NotificationService,
 	) {}
@@ -96,6 +99,26 @@ export class CommentService {
 						undefined,
 						undefined,
 						NotificationGroup.MEMBER,
+					);
+					await this.notificationService.createNotification(await notificationInput);
+				}
+				break;
+
+			case CommentGroup.EQUIPMENT:
+				await this.memberService.memberStatsEditor({
+					_id: input.commentRefId,
+					targetKey: 'equipmentComments',
+					modifier: 1,
+				});
+
+				const receiverEquipment: Equipment = await this.equipmentService.getMemberOfEquipment(input.commentRefId);
+				if (receiverEquipment) {
+					const notificationInput = await this.createNotificationInput(
+						input,
+						receiverEquipment.memberId,
+						receiverEquipment._id,
+						undefined,
+						NotificationGroup.EQUIPMENT,
 					);
 					await this.notificationService.createNotification(await notificationInput);
 				}
